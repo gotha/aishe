@@ -1,0 +1,10 @@
+# MCP and Wikipedia integration
+mcp>=1.0.0
+wikipedia-mcp>=1.6.0
+
+# Ollama client
+ollama>=0.6.0
+
+# Additional dependencies
+platformdirs>=4.0.0
+

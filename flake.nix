@@ -32,6 +32,12 @@
             fi
             source .venv/bin/activate
 
+            # Install/update Python dependencies from requirements.txt
+            if [ -f requirements.txt ]; then
+              echo "Installing Python dependencies from requirements.txt..."
+              pip install -q -r requirements.txt
+            fi
+
             echo "=================================="
             echo "RAG Development Environment Loaded"
             echo "=================================="
