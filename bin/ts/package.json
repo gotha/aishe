@@ -4,11 +4,13 @@
   "description": "Entrypoint for the AIshe CLI TypeScript",
   "main": "dist/main.js",
   "scripts": {
-    "build": "npm run build:link && tsc",
-    "build:link": "npm link aishe-client",
+    "build": "tsc",
     "start": "node dist/main.js"
   },
   "types": "dist/main.d.ts",
+  "dependencies": {
+    "aishe-client": "file:../../client-js"
+  },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "typescript": "^5.9.3"

@@ -7,8 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "tsc && npm run build:link",
-    "build:link": "npm link",
+    "build": "tsc",
     "test": "vitest",
     "start": "node dist/src/main.js"
   },
