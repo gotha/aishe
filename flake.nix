@@ -11,6 +11,10 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
+        # Node.js for JS/TS tooling (nixpkgs 25.05 provides nodejs_22 as LTS).
+        # This will not be exactly v25.2.1, but is good enough for the tooling.
+        nodejs = pkgs.nodejs_22;
+
         # Create a Python environment with dependencies
         pythonEnv = pkgs.python311.withPackages (ps:
           with ps; [
@@ -57,6 +61,29 @@
           ''}";
         };
 
+        # JS CLI: builds everything and then runs `npm start` in bin/ts
+        apps."aishe-js" = {
+          type = "app";
+          program = "${pkgs.writeShellScript "aishe-js" ''
+            set -euo pipefail
+
+            # IMPORTANT: stay in the working tree, not ${self} in the Nix store
+            # nix run .#aishe-js should be invoked from the repo root
+            echo "=== Building aishe-client (client-js) ==="
+            cd client-js
+            ${nodejs}/bin/npm install
+            ${nodejs}/bin/npm run build
+
+            echo "=== Building bin/ts entrypoint ==="
+            cd ../bin/ts
+            ${nodejs}/bin/npm install
+            ${nodejs}/bin/npm run build
+
+            echo "=== Running AIshe JS CLI (npm start) ==="
+            exec ${nodejs}/bin/npm start "$@"
+          ''}";
+        };
+
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             # Python environment with native Nix packages
@@ -64,6 +91,9 @@
 
             # Ollama for local LLM
             ollama
+
+            # Node.js / npm for JS & TS clients
+            nodejs
 
             # Development tools
             git
@@ -90,10 +120,12 @@
             echo "Python: $(python --version)"
             echo "Ollama: $(ollama --version)"
             echo "Virtual environment: .venv"
+            echo "Node: $(${nodejs}/bin/node --version)"
             echo ""
             echo "Available commands:"
-            echo "  nix run .#server  - Start the API server"
-            echo "  nix run .#aishe   - Run the CLI client"
+            echo "  nix run .#server   - Start the API server"
+            echo "  nix run .#aishe    - Run the Python CLI client"
+            echo "  nix run .#aishe-js - Build & run the JS CLI"
             echo ""
             echo "To start Ollama service, run:"
             echo "  ollama serve"

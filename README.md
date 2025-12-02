@@ -34,11 +34,38 @@ ollama pull llama3.2:3b
 ollama ls
 ```
 
-### Run the CLI Tool
+### Start AIshe Server
 
+In a (second) separate terminal:
 
 ```bash
-python src/cli.py
+nix run .#server -- --port 8111
+```
+
+NOTE: specifying the port is optional (default port is 8000).
+
+### Run the CLI Tool
+
+You may run either the Python CLI or TypeScript/JavaScript CLI tool.
+Both of them do the same - communciate with AIshe server via it's REST API.
+
+In a (third) separate terminal:
+
+NOTE: if you changed the server port in the last step, make sure to:
+```bash
+export AISHE_API_URL="http://localhost:8111"
+```
+
+#### Python CLI tool
+
+```bash
+nix run .#aishe
+```
+
+#### TypeScript/JavaScript CLI tool
+
+```bash
+nix run .#aishe-js
 ```
 
 You'll see a prompt where you can ask questions:
@@ -84,3 +111,8 @@ BSD
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 Fair warning: this is mostly vibe coded
+
+## Credits
+- Augment.AI for Python-native AIshe server and CLI
+- Cursor.AI for tab-coded TypeScript client
+- chatGPT for fixing Nix / npm problems
