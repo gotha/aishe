@@ -1,0 +1,31 @@
+{
+    "$schema": "https://raw.githubusercontent.com/getcursor/cursor/v1/schema/cursor.schema.json",
+  
+    "project": {
+      "description": "AIshe – Wikipedia RAG TypeScript client using Ollama for LLM generation.",
+  
+      "rules": [
+        "Use TypeScript for all new code.",
+        "Use explicit, well-named interfaces and types. Avoid `any`.",
+        "Favor clarity and simplicity over abstraction.",
+        "Centralize all configuration (model name, URLs, timeouts). No magic strings.",
+        "Write deterministic, testable modules with pure functions where possible.",
+        "Use idiomatic async/await and avoid callback-based patterns.",
+        "Assume development is managed with Nix flakes; do not suggest apt, brew, yum, or global installs.",
+        "Use project-local NPM scripts rather than global tools.",
+        "Assume Node and dependencies are provided by `nix develop`.",
+        "Default LLM is Ollama model `llama3.2:3b`.",
+        "Use the official Ollama HTTP API for JS/TS clients.",
+        "Implement both non-streaming and streaming LLM calls. Use async iterables for streaming.",
+        "Handle connection errors clearly (e.g., Ollama not running).",
+        "If model is missing, suggest `ollama pull llama3.2:3b`.",
+        "Use structured outputs for LLM results: do not return raw strings unless intentional.",
+        "Separate transport, retrieval, and LLM logic into clear modules.",
+        "API client functions must accept explicit arguments and return structured results.",
+        "Avoid hidden state; make dependencies explicit (e.g., pass config into constructors or functions).",
+        "Write tests against public behavior, not internals.",
+        "Use realistic mocks for HTTP and LLM responses.",
+        "Keep test code clear, explicit, and readable."
+      ]
+    }
+  }
