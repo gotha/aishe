@@ -32,9 +32,11 @@ async def lifespan(app: FastAPI):
 
     # Startup
     print("Initializing RAG pipeline...")
+    print(f"Using Ollama host: {config.OLLAMA_HOST}")
     print(f"Using Ollama model: {config.OLLAMA_MODEL}")
     pipeline = RAGPipeline(
         ollama_model=config.OLLAMA_MODEL,
+        ollama_host=config.OLLAMA_HOST,
         max_context_length=config.MAX_CONTEXT_LENGTH,
         max_search_results=config.MAX_SEARCH_RESULTS
     )
@@ -88,8 +90,9 @@ async def health_check():
 
     try:
         # Try to check if Ollama is accessible
-        test_client = OllamaClient(model="llama3.2:3b")
-        # Simple test - just check if we can create the client
+        test_client = OllamaClient(host=config.OLLAMA_HOST, model=config.OLLAMA_MODEL)
+        # Try to list models to verify connection
+        test_client.list_models()
         ollama_accessible = True
     except Exception as e:
         message = f"Ollama not accessible: {str(e)}"
