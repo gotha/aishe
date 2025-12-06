@@ -18,6 +18,7 @@ class Config:
     )
     
     # Ollama configuration
+    OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
     OLLAMA_MODEL: str = os.getenv("AISHE_OLLAMA_MODEL", "llama3.2:3b")
     
     # RAG configuration
@@ -43,6 +44,7 @@ class Config:
         print(f"  Server Host: {cls.SERVER_HOST}")
         print(f"  Server Port: {cls.SERVER_PORT}")
         print(f"  API URL: {cls.API_URL}")
+        print(f"  Ollama Host: {cls.OLLAMA_HOST}")
         print(f"  Ollama Model: {cls.OLLAMA_MODEL}")
         print(f"  Max Context Length: {cls.MAX_CONTEXT_LENGTH}")
         print(f"  Max Search Results: {cls.MAX_SEARCH_RESULTS}")
