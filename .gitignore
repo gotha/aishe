@@ -21,6 +21,27 @@ wheels/
 .installed.cfg
 *.egg
 
+# Go
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Workshop binaries
+clients/go/workshop/*/solution/workshop-*
+clients/go/workshop/*/starter/workshop-*
+
 # Nix
 .direnv/
 result
