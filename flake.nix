@@ -70,16 +70,9 @@
           type = "app";
           program = "${pkgs.writeShellScript "aishe-js" ''
             set -euo pipefail
-
-            # IMPORTANT: stay in the working tree, not ${self} in the Nix store
-            # nix run .#aishe-js should be invoked from the repo root
-            echo "=== Building aishe-client (client-js) ==="
-            cd client-js
-            ${nodejs}/bin/npm install
-            ${nodejs}/bin/npm run build
-
-            echo "=== Building bin/ts entrypoint ==="
-            cd ../bin/ts
+            
+            # echo "=== Building aishe-client (client-js) ==="
+            cd bin/ts
             ${nodejs}/bin/npm install
             ${nodejs}/bin/npm run build
 
