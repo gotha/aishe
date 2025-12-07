@@ -1,4 +1,6 @@
-import { REQUEST_TIMEOUT_MS } from "./config.js";
+import crypto from "node:crypto";
+
+import { REQUEST_TIMEOUT_MS, REDIS_CACHE_KEY_PREFIX } from "./config.js";
 import { ServerError, APIClientError, ServerNotReachableError } from "./errors.js";
 
 /**
@@ -58,4 +60,18 @@ export async function aisheAPIRequest(
     } finally {
         clearTimeout(timeoutId);
     }
+}
+
+/**
+ * Generate a cache key for a question
+ *
+ * Uses SHA-256 hash to generate a unique key.
+ *
+ * @param question - Question to generate a cache key for.
+ *
+ * @returns Cache key.
+ */
+export function generateCacheKey(question: string): string {
+    const hash = crypto.createHash("sha256").update(question).digest("hex");
+    return `${REDIS_CACHE_KEY_PREFIX}:${hash}`;
 }

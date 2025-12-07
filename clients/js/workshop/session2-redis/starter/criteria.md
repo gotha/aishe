@@ -1,21 +1,54 @@
-# Session 1 - Criteria for Success
+# Session 2 - Criteria for Success
+
+If you succeeded in time with session 1, copy your implementation of session 1
+(`main.ts` & `client.ts`) inside _session2-redis/starter/_.
+
+Otherwise, check out the reference implementation inside _session1-basic/solution/_
+and use it to complete session 2.
 
 ## Criteria
 
 `main.ts`:
 
-- [] Create a basic AIshe HTTP client
-- [] Check AIshe's health
-- [] Print health response
-- [] Ask AIshe a question
-- [] Display AIshe's results
-- [] Time asking AIshe a question
+- [x] Create a basic AIshe HTTP client
+- [x] Check AIshe's health
+- [x] Print health response
+- [x] Ask AIshe a question
+- [x] Display AIshe's results
+- [x] Time asking AIshe a question
+- [ ] Check if cache key is in Redis before asking a question
+- [ ] Display the source of your retrieved answer (Redis cache HIT or AIshe API)
 
 `client.ts`
 
-- [] implement AIsheHTTPClient constructor
-- [] implement checkHealth() method
-- [] implement askQuestion() method
+- [x] implement AIsheHTTPClient constructor
+- [x] implement checkHealth() method
+- [x] implement askQuestion() method
+- [ ] modify constructor() to create a Redis client
+- [ ] implement create() static method + add a basic healthcheck by pinging Redis
+- [ ] implement close()
+- [ ] modify askQuestion() to check the cache before fetching from AIshe API
+    - [ ] if answer is cahed, retrieve cached value
+    - [ ] otherwise, generate a cache key, fetch from AIshe API, cache & return your result
+
+## Redis Client Basics
+
+```ts
+import { createClient, type RedisClientType } from "redis";
+
+const redisClient: RedisClientType = createClient({
+    url: "redis://localhost:6379",
+});
+await redisClient.connect();
+
+try {
+    await redisClient.set("framework", "Redis 8.4");
+    const framework = await redisClient.get("framework");
+    console.log("framework =", framework);
+} finally {
+    await redisClient.quit();
+}
+```
 
 ## References
 
@@ -46,6 +79,38 @@ export const AISHE_API_URL: string = process.env.AISHE_API_URL || `http://${SERV
  * Request timeout in milliseconds
  */
 export const REQUEST_TIMEOUT_MS: number = parseInt(process.env.REQUEST_TIMEOUT || "120") * 1000;
+
+/**
+ * Redis host
+ */
+export const REDIS_HOST: string = process.env.REDIS_HOST || "localhost";
+
+/**
+ * Redis port
+ */
+export const REDIS_PORT: number = parseInt(process.env.REDIS_PORT || "6379");
+
+/**
+ * Redis database
+ */
+export const REDIS_DATABASE: number = parseInt(process.env.REDIS_DATABASE || "0");
+
+/**
+ * Redis username
+ */
+export const REDIS_USERNAME: string = process.env.REDIS_USERNAME || "default";
+
+/**
+ * Redis password
+ */
+export const REDIS_PASSWORD: string = process.env.REDIS_PASSWORD || "";
+
+/**
+ * Redis URL
+ */
+export const REDIS_URL: string =
+    process.env.REDIS_URL ||
+    `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DATABASE}`;
 ```
 
 ### Health and Answer response models from AIshe
@@ -232,4 +297,68 @@ const timeout = ...
 const body = ...
 const response = await aisheAPIRequest(method, endpoint, timeout, body);
 const typedResponse = response as ResponseType
+```
+
+### Function to generate cache keys
+
+This function generates a cache key for you which look like:
+`aishe:question:2990b8f25d9f7a585798544a7231ffcec5f0ef7507691f077cf70ba889af83ee`
+`aishe:question:32b0ee199b6b95c4301c495665aad49af074b92d8a86f86d00b5c5535b360049`
+
+```ts
+/**
+ * Generate a cache key for a question
+ *
+ * Uses SHA-256 hash to generate a unique key.
+ *
+ * @param question - Question to generate a cache key for.
+ *
+ * @returns Cache key.
+ */
+export function generateCacheKey(question: string): string {
+    const hash = crypto.createHash("sha256").update(question).digest("hex");
+    return `${REDIS_CACHE_KEY_PREFIX}:${hash}`;
+}
+```
+
+## HELP: constructor() doesn't allow `await`
+
+JavaScript's constructor is not an asynchronous method, which is why you can't
+call and await other async methods in it.
+
+You'll still need to use asynchronous methods from redis-js client library to
+connect and interact with Redis. That's why you'll end up using a factory creation
+design pattern. It goes like this:
+
+- Make your constructor private and only use it to initalize properties
+- Create `static async create()` method which creates a Redis client + a new instance
+  of AIsheHTTPClient
+- Connect to Redis & check it's health in your `create()` factory method
+- Use your `create()` method to get an instance of AIsheHTTPClient instead of `new`
+
+Example:
+
+```ts
+// client.ts
+import { createClient, RedisClientType } from 'redis';
+
+export class AIsheHTTPClient {
+    private readonly redisClient;
+
+    private constructor(redisClient: RedisClientType) {
+        this.redisClient = redisClient;
+    }
+
+    static async create(...): Promise<AIsheHTTPClient> {
+        const redisClient: RedisClientType = createClient({ ... });
+        // connect to Redis via your client
+        // PING Redis for a basic healthcheck
+        return new AIsheHTTPClient(redisClient);
+    }
+}
+
+// main.ts
+import { AIsheHTTPClient } from './client.js';
+
+const client = await AIsheHTTPClient.create(...);
 ```

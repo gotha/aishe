@@ -79,8 +79,8 @@ async function main(): Promise<void> {
 
         console.log("Answer:", answer.answer);
         console.log("Source: AIshe API");
-        console.log("Processing time:", answer.processing_time);
-        console.log("Measured execution time:", measuredTime);
+        console.log("Processing time:", answer.processing_time, "s");
+        console.log("Measured execution time:", measuredTime, "s");
         for (const source of answer.sources) {
             console.log(`  [${source.number}] ${source.title}`);
             console.log(`      ${source.url}`);
