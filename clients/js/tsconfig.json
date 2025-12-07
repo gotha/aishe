@@ -2,7 +2,7 @@
     // Visit https://aka.ms/tsconfig to read more about this file
     "compilerOptions": {
         // File Layout
-        "rootDir": "src",
+        "rootDir": ".",
         "outDir": "dist",
 
         // Environment Settings
@@ -30,8 +30,14 @@
 
         // Additional Options
         "moduleResolution": "nodenext",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+
+        // For self-imports: `import {} from "aishe-client"`
+        "baseUrl": ".",
+        "paths": {
+            "aishe-client": ["src/index.ts"]
+        }
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "workshop/**/*.ts"],
     "exclude": ["node_modules", "dist", "examples"]
 }
