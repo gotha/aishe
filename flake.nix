@@ -68,7 +68,7 @@
             set -euo pipefail
             
             # echo "=== Building aishe-client (client-js) ==="
-            cd bin/ts
+            cd clients/js/
             ${nodejs}/bin/npm install
             ${nodejs}/bin/npm run build
 
