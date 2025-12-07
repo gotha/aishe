@@ -81,6 +81,12 @@ export class AIsheCLI {
   async run(): Promise<void> {
     this.printBanner();
 
+    // Handle CTRL+C at readline level
+    this.rl.on("SIGINT", () => {
+      console.log("\nReceived CTRL+C. Exiting...");
+      this.rl.close();
+    });
+
     // Check server health on startup
     try {
       console.log("Checking server connection...");

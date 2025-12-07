@@ -4,11 +4,6 @@ import type { HealthResponse, AnswerResponse } from "./models.js";
 
 /** AIshe API client */
 export class RAGAPIClient {
-    /** Base URL of the AIshe API server */
-    private baseUrl: string;
-
-    /** Request timeout in milliseconds */
-    private timeout: number;  // in milliseconds
 
     /**
      * Initialize AIshe API client
@@ -16,10 +11,12 @@ export class RAGAPIClient {
      * @param baseUrl - Base URL of the AIshe API server (default: AISHE_API_URL).
      * @param timeout - Request timeout in milliseconds (default: REQUEST_TIMEOUT_MS).
      */
-    constructor(baseUrl: string = AISHE_API_URL, timeout: number = REQUEST_TIMEOUT_MS) {
-        this.baseUrl = baseUrl;
-        this.timeout = timeout;  // in milliseconds
-    }
+    constructor(
+        /** Base URL of the AIshe API server */
+        private readonly baseUrl: string = AISHE_API_URL,
+        /** Request timeout in milliseconds */
+        private readonly timeout: number = REQUEST_TIMEOUT_MS  // in milliseconds
+    ) {}
 
     /**
      * Check AIshe's health
@@ -42,9 +39,12 @@ export class RAGAPIClient {
         const endpoint = this.healthEndpoint();
         const method = "GET";
 
-        const data = await this.aisheRequest(endpoint, method);
-        this.validateHealthResponse(data);
-        return data as HealthResponse;
+        const data = await this.aisheRequest<HealthResponse>(endpoint, method);
+        const isValid = this.isHealthResponse(data);
+        if (!isValid) {
+            throw new APIClientError("Malformed health response from server");
+        }
+        return data;
     }
 
     /**
@@ -70,7 +70,7 @@ export class RAGAPIClient {
      * @throws Error - If the question is empty.
      * @throws ServerNotReachableError - If the request timed out.
      * @throws ServerError - If the request failed.
-     * @throws APIClientError - If the request is malformed.
+     * @throws APIClientError - If the request or response is malformed.
      * 
      * @returns Answer from AIshe server.
      */
@@ -83,9 +83,12 @@ export class RAGAPIClient {
         const method = "POST";
         const body = { question: question.trim() };
 
-        const data = await this.aisheRequest(endpoint, method, body);
-        this.validateAnswerResponse(data);
-        return data as AnswerResponse;
+        const data = await this.aisheRequest<AnswerResponse>(endpoint, method, body);
+        const isValid = this.isAnswerResponse(data);
+        if (!isValid) {
+            throw new APIClientError("Malformed answer response from server");
+        }
+        return data;
     }
 
     /**
@@ -103,7 +106,7 @@ export class RAGAPIClient {
      * 
      * @returns Response from AIshe server.
      */
-    private async aisheRequest(endpoint: string, method: string, body?: any): Promise<any> {
+    private async aisheRequest<T>(endpoint: string, method: string, body?: unknown): Promise<T> {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -123,7 +126,9 @@ export class RAGAPIClient {
         } catch (error) {
             if (error instanceof Error && error.name === "AbortError") {
                 throw new ServerNotReachableError(`${method} request timed out after ${this.timeout}ms`);
-            } 
+            } else if (error instanceof Error && error.name === "ServerError") {
+                throw error;
+            }
             throw new APIClientError(`${method} request failed! Unexpected error: ${error}`);
         } finally {
             clearTimeout(timeoutId);
@@ -157,12 +162,15 @@ export class RAGAPIClient {
      * 
      * @param data - Health response from AIshe server.
      * 
-     * @throws APIClientError - If the health response is malformed.
+     * @returns True if the health response is valid, false otherwise.
      */
-    private validateHealthResponse(data: any): void {
-        if (typeof data !== "object" || data === null || typeof data.status !== "string" || typeof data.ollama_accessible !== "boolean") {
-            throw new APIClientError("Malformed answer response from server");
-        }
+    private isHealthResponse(data: unknown): data is HealthResponse {
+        return (
+            typeof data === "object" &&
+            data !== null &&
+            typeof (data as HealthResponse).status === "string" &&
+            typeof (data as HealthResponse).ollama_accessible === "boolean"
+        );
     }
 
     /**
@@ -170,11 +178,15 @@ export class RAGAPIClient {
      * 
      * @param data - Answer response from AIshe server.
      * 
-     * @throws APIClientError - If the answer response is malformed.
+     * @returns True if the answer response is valid, false otherwise.
      */
-    private validateAnswerResponse(data: any): void {
-        if (typeof data !== "object" || data === null || typeof data.answer !== "string" || !Array.isArray(data.sources) || typeof data.processing_time !== "number") {
-            throw new APIClientError("Malformed answer response from server");
-        }
+    private isAnswerResponse(data: unknown): data is AnswerResponse {
+        return (
+            typeof data === "object" &&
+            data !== null &&
+            typeof (data as AnswerResponse).answer === "string" &&
+            Array.isArray((data as AnswerResponse).sources) &&
+            typeof (data as AnswerResponse).processing_time === "number"
+        );
     }
 }
