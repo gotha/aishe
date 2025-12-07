@@ -38,7 +38,7 @@ export class RAGAPIClient {
         const endpoint = this.healthEndpoint();
         const method = "GET";
 
-        const data = await this.aisheRequest<HealthResponse>(endpoint, method);
+        const data = await this.aisheRequest<HealthResponse>(method, endpoint);
         const isValid = this.isHealthResponse(data);
         if (!isValid) {
             throw new APIClientError("Malformed health response from server");
@@ -82,7 +82,7 @@ export class RAGAPIClient {
         const method = "POST";
         const body = { question: question.trim() };
 
-        const data = await this.aisheRequest<AnswerResponse>(endpoint, method, body);
+        const data = await this.aisheRequest<AnswerResponse>(method, endpoint, body);
         const isValid = this.isAnswerResponse(data);
         if (!isValid) {
             throw new APIClientError("Malformed answer response from server");
@@ -95,8 +95,8 @@ export class RAGAPIClient {
      *
      * IMPORTANT: Please do not supply a body for GET requests.
      *
-     * @param endpoint - Endpoint to ship a request to.
      * @param method - HTTP method to use (GET, POST, etc.).
+     * @param endpoint - Endpoint to ship a request to.
      * @param body - Body of the request (optional). NOTE: skip for GET requests.
      *
      * @throws ServerNotReachableError - If the request timed out.
@@ -105,7 +105,7 @@ export class RAGAPIClient {
      *
      * @returns Response from AIshe server.
      */
-    private async aisheRequest<T>(endpoint: string, method: string, body?: unknown): Promise<T> {
+    private async aisheRequest<T>(method: string, endpoint: string, body?: unknown): Promise<T> {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 

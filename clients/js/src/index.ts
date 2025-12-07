@@ -10,7 +10,10 @@ export type { AnswerResponse, HealthResponse, ErrorResponse, Source, QuestionReq
 export { APIClientError, ServerError, ServerNotReachableError } from "./errors.js";
 
 // Configuration display function
-export { displayConfig } from "./config.js";
+export { AISHE_API_URL, REQUEST_TIMEOUT_MS, displayConfig } from "./config.js";
 
 // Command-line interface
 export { AIsheCLI } from "./cli.js";
+
+// Request function
+export { aisheAPIRequest } from "./requests.js";
