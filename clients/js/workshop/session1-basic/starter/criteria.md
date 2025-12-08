@@ -4,18 +4,18 @@
 
 `main.ts`:
 
-- [] Create a basic AIshe HTTP client
-- [] Check AIshe's health
-- [] Print health response
-- [] Ask AIshe a question
-- [] Display AIshe's results
-- [] Time asking AIshe a question
+- [ ] Create a basic AIshe HTTP client
+- [ ] Check AIshe's health
+- [ ] Print health response
+- [ ] Ask AIshe a question
+- [ ] Display AIshe's results
+- [ ] Time asking AIshe a question
 
 `client.ts`
 
-- [] implement AIsheHTTPClient constructor
-- [] implement checkHealth() method
-- [] implement askQuestion() method
+- [ ] implement AIsheHTTPClient constructor
+- [ ] implement checkHealth() method
+- [ ] implement askQuestion() method
 
 ## References
 

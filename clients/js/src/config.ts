@@ -56,6 +56,27 @@ export const REDIS_URL: string =
 export const REDIS_CACHE_KEY_PREFIX: string = process.env.REDIS_CACHE_KEY_PREFIX || "aishe:question";
 
 /**
+ * LangCache strict similarity threshold
+ */
+export const LANGCACHE_STRICT_SIMILARITY_THRESHOLD: number = parseFloat(
+    process.env.LANGCACHE_STRICT_SIMILARITY_THRESHOLD || "0.95",
+);
+
+/**
+ * LangCache close similarity threshold
+ */
+export const LANGCACHE_CLOSE_SIMILARITY_THRESHOLD: number = parseFloat(
+    process.env.LANGCACHE_CLOSE_SIMILARITY_THRESHOLD || "0.9",
+);
+
+/**
+ * LangCache loose similarity threshold
+ */
+export const LANGCACHE_LOOSE_SIMILARITY_THRESHOLD: number = parseFloat(
+    process.env.LANGCACHE_LOOSE_SIMILARITY_THRESHOLD || "0.8",
+);
+
+/**
  * Display the current configuration
  */
 export function displayConfig(): void {
@@ -71,4 +92,7 @@ export function displayConfig(): void {
     console.log(`  Redis Password: ${REDIS_PASSWORD}`);
     console.log(`  Redis URL: ${REDIS_URL}`);
     console.log(`  Redis Cache Key Prefix: ${REDIS_CACHE_KEY_PREFIX}`);
+    console.log(`  LangCache Strict Similarity Threshold: ${LANGCACHE_STRICT_SIMILARITY_THRESHOLD}`);
+    console.log(`  LangCache Close Similarity Threshold: ${LANGCACHE_CLOSE_SIMILARITY_THRESHOLD}`);
+    console.log(`  LangCache Loose Similarity Threshold: ${LANGCACHE_LOOSE_SIMILARITY_THRESHOLD}`);
 }

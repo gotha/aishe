@@ -1,10 +1,10 @@
-# Session 2 - Criteria for Success
+# Session 3 - Criteria for Success
 
-If you succeeded in time with session 1, copy your implementation of session 1
-(`main.ts` & `client.ts`) inside _session2-redis/starter/_.
+If you succeeded in time with session 2, copy your implementation of session 2
+(`main.ts` & `client.ts`) inside _session3-langcache/starter/_.
 
-Otherwise, check out the reference implementation inside _session1-basic/solution/_
-and use it to complete session 2.
+Otherwise, check out the reference implementation inside _session2-redis/solution/_
+and use it to complete session 3.
 
 ## Criteria
 
@@ -16,40 +16,46 @@ and use it to complete session 2.
 - [x] Ask AIshe a question
 - [x] Display AIshe's results
 - [x] Time asking AIshe a question
-- [ ] Check if cache key is in Redis before asking a question
-- [ ] Display the source of your retrieved answer (Redis cache HIT or AIshe API)
+- [ ] Check if cache key is in ~~Redis~~ LangCache before asking a question
+- [ ] Display the source of your retrieved answer ~~(Redis cache HIT or AIshe API)~~ (LangCache or AIshe API)
 
 `client.ts`
 
 - [x] implement AIsheHTTPClient constructor
 - [x] implement checkHealth() method
 - [x] implement askQuestion() method
-- [ ] modify constructor() to create a Redis client
-- [ ] implement create() static method + add a basic healthcheck by pinging Redis
-- [ ] implement close()
-- [ ] modify askQuestion() to check the cache before fetching from AIshe API
-    - [ ] if answer is cahed, retrieve cached value
-    - [ ] otherwise, generate a cache key, fetch from AIshe API, cache & return your result
+- [x] modify constructor() to create a Redis client
+- [x] implement create() static method + add a basic healthcheck by pinging Redis
+- [x] implement close()
+- [x] modify askQuestion() to check the cache before fetching from AIshe API
+    - [x] if answer is cahed, retrieve cached value
+    - [x] otherwise, generate a cache key, fetch from AIshe API, cache & return your result
+- [ ] modify constructor() / create() to create a new LangCache client
+- [ ] clean up close() (no operation needed)
+- [ ] modify isCached() to check LangCache instead of Redis
+- [ ] modify askQuestion() to use LangCache instead of a basic Redis Cache
+      NOTE: remember to use your API KEY, Cache ID and URL list
 
-## Redis Client Basics
+## LangCache Basics
 
-```ts
-import { createClient, type RedisClientType } from "redis";
+Redis LangCache is a fully-managed semantic caching service. It's used to cache
+large language model (LLM) responses based on meaning. This allows you to reuse
+the same response for similar prompts, massively speeding up your app & cutting
+LLM costs (+ saving GPU/TPU lives).
 
-const redisClient: RedisClientType = createClient({
-    url: "redis://localhost:6379",
-});
-redisClient.on("error", (err) => console.error(err));
-await redisClient.connect();
+### Create a LangCache account
 
-try {
-    await redisClient.set("framework", "Redis 8.4");
-    const framework = await redisClient.get("framework");
-    console.log("framework =", framework);
-} finally {
-    await redisClient.quit();
-}
-```
+- Visit [https://redis.io/langcache/](https://redis.io/langcache/) and click "Try it for free".
+- Create an account with GitHub, Google account, etc.
+- IMPORTANT: Copy the API KEY and save it somewhere; You'll only see it once.
+- Quick create a new LangCache service
+- Find the Cache ID and copy it somewhere
+- Copy one of the URLs somewhere
+
+### How to use LangCache
+
+Basic API examples: [https://redis.io/docs/latest/develop/ai/langcache/api-examples/](https://redis.io/docs/latest/develop/ai/langcache/api-examples/)
+Theoretical intro to langcache: [https://redis.io/docs/latest/develop/ai/langcache/](https://redis.io/docs/latest/develop/ai/langcache/)
 
 ## References
 
@@ -112,6 +118,27 @@ export const REDIS_PASSWORD: string = process.env.REDIS_PASSWORD || "";
 export const REDIS_URL: string =
     process.env.REDIS_URL ||
     `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DATABASE}`;
+
+/**
+ * LangCache strict similarity threshold
+ */
+export const LANGCACHE_STRICT_SIMILARITY_THRESHOLD: number = parseFloat(
+    process.env.LANGCACHE_STRICT_SIMILARITY_THRESHOLD || "0.95",
+);
+
+/**
+ * LangCache close similarity threshold
+ */
+export const LANGCACHE_CLOSE_SIMILARITY_THRESHOLD: number = parseFloat(
+    process.env.LANGCACHE_CLOSE_SIMILARITY_THRESHOLD || "0.9",
+);
+
+/**
+ * LangCache loose similarity threshold
+ */
+export const LANGCACHE_LOOSE_SIMILARITY_THRESHOLD: number = parseFloat(
+    process.env.LANGCACHE_LOOSE_SIMILARITY_THRESHOLD || "0.8",
+);
 ```
 
 ### Health and Answer response models from AIshe
@@ -298,68 +325,4 @@ const timeout = ...
 const body = ...
 const response = await aisheAPIRequest(method, endpoint, timeout, body);
 const typedResponse = response as ResponseType
-```
-
-### Function to generate cache keys
-
-This function generates a cache key for you which look like:
-`aishe:question:2990b8f25d9f7a585798544a7231ffcec5f0ef7507691f077cf70ba889af83ee`
-`aishe:question:32b0ee199b6b95c4301c495665aad49af074b92d8a86f86d00b5c5535b360049`
-
-```ts
-/**
- * Generate a cache key for a question
- *
- * Uses SHA-256 hash to generate a unique key.
- *
- * @param question - Question to generate a cache key for.
- *
- * @returns Cache key.
- */
-export function generateCacheKey(question: string): string {
-    const hash = crypto.createHash("sha256").update(question).digest("hex");
-    return `${REDIS_CACHE_KEY_PREFIX}:${hash}`;
-}
-```
-
-## HELP: constructor() doesn't allow `await`
-
-JavaScript's constructor is not an asynchronous method, which is why you can't
-call and await other async methods in it.
-
-You'll still need to use asynchronous methods from redis-js client library to
-connect and interact with Redis. That's why you'll end up using a factory creation
-design pattern. It goes like this:
-
-- Make your constructor private and only use it to initalize properties
-- Create `static async create()` method which creates a Redis client + a new instance
-  of AIsheHTTPClient
-- Connect to Redis & check it's health in your `create()` factory method
-- Use your `create()` method to get an instance of AIsheHTTPClient instead of `new`
-
-Example:
-
-```ts
-// client.ts
-import { createClient, RedisClientType } from 'redis';
-
-export class AIsheHTTPClient {
-    private readonly redisClient;
-
-    private constructor(redisClient: RedisClientType) {
-        this.redisClient = redisClient;
-    }
-
-    static async create(...): Promise<AIsheHTTPClient> {
-        const redisClient: RedisClientType = createClient({ ... });
-        // connect to Redis via your client
-        // PING Redis for a basic healthcheck
-        return new AIsheHTTPClient(redisClient);
-    }
-}
-
-// main.ts
-import { AIsheHTTPClient } from './client.js';
-
-const client = await AIsheHTTPClient.create(...);
 ```
