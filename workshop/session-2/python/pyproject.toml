@@ -1,0 +1,12 @@
+[project]
+name = "session-2"
+version = "0.1.0"
+description = "AISHE CLI with Redis caching"
+requires-python = ">=3.12"
+dependencies = [
+    "redis>=7.1.0",
+    "requests>=2.32.5",
+]
+
+[project.scripts]
+aishe-cached = "main:main"

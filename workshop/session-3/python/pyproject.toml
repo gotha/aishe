@@ -1,0 +1,13 @@
+[project]
+name = "session-3"
+version = "0.1.0"
+description = "AISHE CLI with semantic caching using langcache"
+requires-python = ">=3.12"
+dependencies = [
+    "langcache>=0.11.1",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+]
+
+[project.scripts]
+aishe-semantic = "main:main"
