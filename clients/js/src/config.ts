@@ -77,6 +77,21 @@ export const LANGCACHE_LOOSE_SIMILARITY_THRESHOLD: number = parseFloat(
 );
 
 /**
+ * LangCache API key
+ */
+export const LANGCACHE_API_KEY: string | undefined = process.env.LANGCACHE_API_KEY;
+
+/**
+ * LangCache cache ID
+ */
+export const LANGCACHE_CACHE_ID: string | undefined = process.env.LANGCACHE_CACHE_ID;
+
+/**
+ * LangCache server URL
+ */
+export const LANGCACHE_SERVER_URL: string | undefined = process.env.LANGCACHE_SERVER_URL;
+
+/**
  * Display the current configuration
  */
 export function displayConfig(): void {

@@ -8,12 +8,10 @@ import {
     type HealthResponse,
     type AnswerResponse,
     LANGCACHE_CLOSE_SIMILARITY_THRESHOLD,
+    LANGCACHE_API_KEY,
+    LANGCACHE_CACHE_ID,
+    LANGCACHE_SERVER_URL,
 } from "aishe-client";
-
-// TODO: replace with your own API KEY, CACHE ID and URL
-const LANGCACHE_API_KEY: string = "YOUR_API_KEY";
-const LANGCACHE_CACHE_ID: string = "YOUR_CACHE_ID";
-const LANGCACHE_SERVER_URL: string = "YOUR_SERVER_URL";
 
 /** AIshe API client */
 export class AIsheHTTPClient {
@@ -42,6 +40,10 @@ export class AIsheHTTPClient {
         //           - LANGCACHE_CLOSE_SIMILARITY_THRESHOLD from 'aishe-client'
         //           - LANGCACHE_LOOSE_SIMILARITY_THRESHOLD from 'aishe-client'
         // [NEW] 4. create a new LangCache client
+
+        if (!LANGCACHE_API_KEY || !LANGCACHE_CACHE_ID || !LANGCACHE_SERVER_URL) {
+            throw new Error("LangCache API key, cache ID, and server URL are not set");
+        }
 
         this.baseUrl = baseUrl ?? AISHE_API_URL;
         this.timeout = timeout ?? REQUEST_TIMEOUT_MS;

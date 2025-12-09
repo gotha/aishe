@@ -139,6 +139,21 @@ export const LANGCACHE_CLOSE_SIMILARITY_THRESHOLD: number = parseFloat(
 export const LANGCACHE_LOOSE_SIMILARITY_THRESHOLD: number = parseFloat(
     process.env.LANGCACHE_LOOSE_SIMILARITY_THRESHOLD || "0.8",
 );
+
+/**
+ * LangCache API key
+ */
+export const LANGCACHE_API_KEY: string = process.env.LANGCACHE_API_KEY || "YOUR_API_KEY";
+
+/**
+ * LangCache cache ID
+ */
+export const LANGCACHE_CACHE_ID: string = process.env.LANGCACHE_CACHE_ID || "YOUR_CACHE_ID";
+
+/**
+ * LangCache server URL
+ */
+export const LANGCACHE_SERVER_URL: string = process.env.LANGCACHE_SERVER_URL || "YOUR_SERVER_URL";
 ```
 
 ### Health and Answer response models from AIshe

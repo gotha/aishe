@@ -132,6 +132,9 @@ Implement semantic caching with LangCache.
 **Run:**
 ```bash
 cd clients/js
+export LANGCACHE_API_KEY="..."
+export LANGCACHE_CACHE_ID="..."
+export LANGCACHE_SERVER_URL="..."
 npm run session3
 ```
 
