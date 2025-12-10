@@ -12,6 +12,7 @@
     },
     "scripts": {
         "build": "tsc",
+        "prepare": "npm run build",
         "start": "node dist/src/main.js",
         "lint": "eslint . --ext js,ts",
         "lint:fix": "eslint . --ext js,ts --fix",
