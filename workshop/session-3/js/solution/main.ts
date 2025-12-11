@@ -4,9 +4,9 @@ import { stdin as input, stdout as output } from "node:process";
 import {
     AISHE_API_URL,
     REQUEST_TIMEOUT_MS,
-    LANGCACHE_LOOSE_SIMILARITY_THRESHOLD,
-    LANGCACHE_CLOSE_SIMILARITY_THRESHOLD,
     LANGCACHE_STRICT_SIMILARITY_THRESHOLD,
+    LANGCACHE_CLOSE_SIMILARITY_THRESHOLD,
+    LANGCACHE_LOOSE_SIMILARITY_THRESHOLD,
     type AnswerResponse,
     type HealthResponse,
 } from "aishe-client";
@@ -18,21 +18,28 @@ async function main(): Promise<void> {
     const client = await AIsheHTTPClient.create(
         AISHE_API_URL,
         REQUEST_TIMEOUT_MS,
-        LANGCACHE_STRICT_SIMILARITY_THRESHOLD,
+        LANGCACHE_CLOSE_SIMILARITY_THRESHOLD,
     );
 
+    console.log("Checking AIshe's health...");
     // TODO: check AIshe's health
     // Hint: you'll need to use the 'await' operator with async functions.
-    console.log("Checking AIshe's health...");
     const health: HealthResponse = await client.checkHealth();
 
     // TODO: print the health status
     // Hint: you need to print `status`, `ollama_accessible`, and `message` if it exists.
-    console.log("AIshe server status:", health.status);
-    console.log("Ollama accessible:", health.ollama_accessible);
-    if (health.message) {
-        console.log("AIshe server message:", health.message);
+    const status = health.status;
+    const ollamaAccessible = health.ollama_accessible;
+    const message = health.message;
+
+    console.log("======================================================================");
+    console.log("AIshe server status:", status);
+    console.log("Ollama accessible:", ollamaAccessible);
+    if (message) {
+        console.log("AIshe server message:", message);
     }
+    console.log("======================================================================");
+    console.log("\n");
 
     // Interactive question loop
     console.log("=== AIshe Question Answering (Session 3: LangCache Caching) ===");
@@ -59,11 +66,6 @@ async function main(): Promise<void> {
             continue;
         }
 
-        // TODO: check if the question is cached in LangCache
-        //       - if found (cache HIT), mark source as LangCache
-        //       - otherwise, mark source as AIshe API
-        const retrievalSource: string = (await client.isCached(question)) ? "LangCache" : "AIshe API";
-
         // TODO: ask AIshe a question, handle errors, measure execution time
         // Hint: use performance for measuring execution time
         // Hint: performance measures in milliseconds, so you need to convert it to seconds
@@ -76,33 +78,56 @@ async function main(): Promise<void> {
             continue;
         }
         const endTime = performance.now();
-        const measuredTime = endTime - startTime;
 
-        // TODO: dispaly results
-        // Expected output format:
+        // Asking: Does France have a capital?
         //
-        // Answer: <answer>
-        // Source: AIshe API
+        // ======================================================================
+        // ANSWER:
+        // ======================================================================
+        // Yes, France has two capitals. The capital of the country is Paris, which serves as the administrative center and seat of government.
+        // However, there is another entity called "capital district" or "grand-duché" in French that holds special status, and it's the Grand Duchy of Luxembourg (although that's outside the scope)
         //
-        // Processing time: <processing_time>
-        // Measured execution time: <measured_time>
-        //
-        // Wikipedia sources:
-        //   [1] <title>
-        //       <url>
-        //   [2] <title>
-        //       <url>
-        //   [3] <title>
-        //       <url>
+        // ======================================================================
+        // SOURCES:
+        // ======================================================================
+        // [1] Capital punishment in France
+        //    https://en.wikipedia.org/wiki/Capital_punishment_in_France
+        // [2] Capital punishment by country
+        //    https://en.wikipedia.org/wiki/Capital_punishment_by_country
+        // [3] Capital districts and territories
+        //    https://en.wikipedia.org/wiki/Capital_districts_and_territories
 
-        console.log("Answer:", answer.answer);
-        console.log("Source:", retrievalSource);
-        console.log("Processing time:", answer.processing_time * 1000, "ms");
-        console.log("Measured execution time:", measuredTime, "ms");
+        // ======================================================================
+        // Source: ASIHE API
+        // Processing time: 2.345 seconds
+        // Measured execution time: 2.531 seconds
+        // ======================================================================
+
+        const source = (await client.isCached(question)) ? "LangCache" : "AIshe API";
+        const processingTime = answer.processing_time;
+        const measuredTime = (endTime - startTime) / 1000;
+
+        console.log(`Asking: ${question}`);
+        console.log("\n");
+        console.log("======================================================================");
+        console.log("ANSWER:");
+        console.log("======================================================================");
+        console.log(answer.answer);
+        console.log("\n");
+        console.log("======================================================================");
+        console.log("SOURCES:");
+        console.log("======================================================================");
         for (const source of answer.sources) {
             console.log(`  [${source.number}] ${source.title}`);
             console.log(`      ${source.url}`);
         }
+        console.log("\n");
+        console.log("======================================================================");
+        console.log("Source:", source);
+        console.log("Processing time:", processingTime * 1000, "ms");
+        console.log("Measured execution time:", measuredTime * 1000, "ms");
+        console.log("======================================================================");
+        console.log("\n");
     }
 
     await client.close();

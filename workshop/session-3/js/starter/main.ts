@@ -4,9 +4,9 @@ import { stdin as input, stdout as output } from "node:process";
 import {
     AISHE_API_URL,
     REQUEST_TIMEOUT_MS,
-    LANGCACHE_LOOSE_SIMILARITY_THRESHOLD,
-    LANGCACHE_CLOSE_SIMILARITY_THRESHOLD,
     LANGCACHE_STRICT_SIMILARITY_THRESHOLD,
+    LANGCACHE_CLOSE_SIMILARITY_THRESHOLD,
+    LANGCACHE_LOOSE_SIMILARITY_THRESHOLD,
     type AnswerResponse,
     type HealthResponse,
 } from "aishe-client";
@@ -15,23 +15,31 @@ import { AIsheHTTPClient } from "./client.js";
 
 async function main(): Promise<void> {
     // TODO: create a new AIsheHTTPClient instance
-    // ..............................
-    // const client: AIsheHTTPClient = ...;
+    const client = await AIsheHTTPClient.create(
+        AISHE_API_URL,
+        REQUEST_TIMEOUT_MS,
+        LANGCACHE_LOOSE_SIMILARITY_THRESHOLD,
+    );
 
-    // TODO: check AIshe's health
     console.log("Checking AIshe's health...");
-    // ..............................
-    // TODO: uncomment after you've initialized the client
-    // const health: HealthResponse = await client.checkHealth();
+    // TODO: check AIshe's health
+    // Hint: you'll need to use the 'await' operator with async functions.
+    const health: HealthResponse = await client.checkHealth();
 
-    // Print the health status
-    // ..............................
-    // TODO: uncomment after you've initialized the client
-    // console.log("AIshe server status:", health.status);
-    // console.log("Ollama accessible:", health.ollama_accessible);
-    // if (health.message) {
-    //     console.log("AIshe server message:", health.message);
-    // }
+    // TODO: print the health status
+    // Hint: you need to print `status`, `ollama_accessible`, and `message` if it exists.
+    const status = health.status;
+    const ollamaAccessible = health.ollama_accessible;
+    const message = health.message;
+
+    console.log("======================================================================");
+    console.log("AIshe server status:", status);
+    console.log("Ollama accessible:", ollamaAccessible);
+    if (message) {
+        console.log("AIshe server message:", message);
+    }
+    console.log("======================================================================");
+    console.log("\n");
 
     // Interactive question loop
     console.log("=== AIshe Question Answering (Session 3: LangCache Caching) ===");
@@ -43,6 +51,7 @@ async function main(): Promise<void> {
     // Handle CTRL+C at readline level
     rl.on("SIGINT", async () => {
         console.log("\nReceived CTRL+C. Exiting...");
+        await client.close();
         rl.close();
     });
 
@@ -57,49 +66,71 @@ async function main(): Promise<void> {
             continue;
         }
 
-        // TODO: check if the question is cached in LangCache
-        //       - if found (cache HIT), mark source as LangCache
-        //       - otherwise, mark source as AIshe API
-        // HINT: implement AIsheHTTPClient.isCached() method and use it to select the source
-        // ..............................
-        // const retrievalSource: string = ...;
-
         // TODO: ask AIshe a question, handle errors, measure execution time
         // Hint: use performance for measuring execution time
-        // Hint: use performance measurements as-is in milliseconds to see the difference in SPEED
-        // ..............................
-        // const answer: AnswerResponse = ...;
-        // const measuredTime: number = ...;
+        // Hint: performance measures in milliseconds, so you need to convert it to seconds
+        let answer: AnswerResponse;
+        const startTime = performance.now();
+        try {
+            answer = await client.askQuestion(question);
+        } catch (error) {
+            console.error("Error:", error);
+            continue;
+        }
+        const endTime = performance.now();
 
-        // TODO: dispaly results
-        // Expected output format:
+        // Asking: Does France have a capital?
         //
-        // Answer: <answer>
-        // Source: AIshe API
+        // ======================================================================
+        // ANSWER:
+        // ======================================================================
+        // Yes, France has two capitals. The capital of the country is Paris, which serves as the administrative center and seat of government.
+        // However, there is another entity called "capital district" or "grand-duché" in French that holds special status, and it's the Grand Duchy of Luxembourg (although that's outside the scope)
         //
-        // Processing time: <processing_time>
-        // Measured execution time: <measured_time>
-        //
-        // Wikipedia sources:
-        //   [1] <title>
-        //       <url>
-        //   [2] <title>
-        //       <url>
-        //   [3] <title>
-        //       <url>
+        // ======================================================================
+        // SOURCES:
+        // ======================================================================
+        // [1] Capital punishment in France
+        //    https://en.wikipedia.org/wiki/Capital_punishment_in_France
+        // [2] Capital punishment by country
+        //    https://en.wikipedia.org/wiki/Capital_punishment_by_country
+        // [3] Capital districts and territories
+        //    https://en.wikipedia.org/wiki/Capital_districts_and_territories
 
-        // TODO: uncomment after you've implemented the results
-        // ..............................
-        // console.log("Answer:", answer.answer);
-        // console.log("Source:", retrievalSource);
-        // console.log("Processing time:", answer.processing_time * 1000, "ms");
-        // console.log("Measured execution time:", measuredTime, "ms");
-        // for (const source of answer.sources) {
-        //     console.log(`  [${source.number}] ${source.title}`);
-        //     console.log(`      ${source.url}`);
-        // }
+        // ======================================================================
+        // Source: ASIHE API
+        // Processing time: 2.345 seconds
+        // Measured execution time: 2.531 seconds
+        // ======================================================================
+
+        const source = "NOT_IMPLEMENTED";
+        const processingTime = answer.processing_time;
+        const measuredTime = (endTime - startTime) / 1000;
+
+        console.log(`Asking: ${question}`);
+        console.log("\n");
+        console.log("======================================================================");
+        console.log("ANSWER:");
+        console.log("======================================================================");
+        console.log(answer.answer);
+        console.log("\n");
+        console.log("======================================================================");
+        console.log("SOURCES:");
+        console.log("======================================================================");
+        for (const source of answer.sources) {
+            console.log(`  [${source.number}] ${source.title}`);
+            console.log(`      ${source.url}`);
+        }
+        console.log("\n");
+        console.log("======================================================================");
+        console.log("Source:", source);
+        console.log("Processing time:", processingTime * 1000, "ms");
+        console.log("Measured execution time:", measuredTime * 1000, "ms");
+        console.log("======================================================================");
+        console.log("\n");
     }
 
+    await client.close();
     rl.close();
 }
 
