@@ -31,6 +31,9 @@ type Response struct {
 }
 
 func main() {
+	// Start timing
+	startTime := time.Now()
+
 	// Check if question was provided
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <your question>")
@@ -109,5 +112,12 @@ func main() {
 	fmt.Println(strings.Repeat("=", 70))
 	fmt.Printf("Processing time: %.2f seconds\n", data.ProcessingTime)
 	fmt.Println(strings.Repeat("=", 70))
+
+	// Print total execution time
+	executionTime := time.Since(startTime).Seconds()
+	fmt.Println()
+	fmt.Println(strings.Repeat("-", 70))
+	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
+	fmt.Println(strings.Repeat("-", 70))
 }
 

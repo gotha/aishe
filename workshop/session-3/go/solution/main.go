@@ -181,6 +181,9 @@ func saveToCache(client *LangCacheClient, question string, response *Response) e
 }
 
 func main() {
+	// Start timing
+	startTime := time.Now()
+
 	// Load environment variables from .env file
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Warning: .env file not found, using environment variables")
@@ -324,5 +327,12 @@ func main() {
 		fmt.Printf("Processing time: %.2f seconds\n", data.ProcessingTime)
 	}
 	fmt.Println(strings.Repeat("=", 70))
+
+	// Print total execution time
+	executionTime := time.Since(startTime).Seconds()
+	fmt.Println()
+	fmt.Println(strings.Repeat("-", 70))
+	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
+	fmt.Println(strings.Repeat("-", 70))
 }
 
