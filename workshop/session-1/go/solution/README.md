@@ -45,6 +45,10 @@ SOURCES:
 ======================================================================
 Processing time: 2.45 seconds
 ======================================================================
+
+----------------------------------------------------------------------
+Execution time: 2.47 seconds
+----------------------------------------------------------------------
 ```
 
 ## What This Solution Demonstrates
@@ -63,4 +67,9 @@ Processing time: 2.45 seconds
 - **Source struct**: Represents individual source citations
 - **HTTP Client**: Configured with 120-second timeout for long-running queries
 - **Error handling**: Graceful handling of connection errors, timeouts, and HTTP errors
+
+## Performance Metrics
+
+- **Processing time**: Time taken by the AISHE API to process the question
+- **Execution time**: Total time from receiving the question to displaying the answer (includes network overhead, parsing, etc.)
 

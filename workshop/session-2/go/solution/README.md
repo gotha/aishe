@@ -55,6 +55,10 @@ SOURCES:
 ======================================================================
 Processing time: 2.45 seconds
 ======================================================================
+
+----------------------------------------------------------------------
+Execution time: 2.47 seconds
+----------------------------------------------------------------------
 ```
 
 ### Second Run (Cache Hit)
@@ -74,8 +78,12 @@ SOURCES:
     https://en.wikipedia.org/wiki/Paris
 
 ======================================================================
-Source: Cache
+Source: Redis Cache
 ======================================================================
+
+----------------------------------------------------------------------
+Execution time: 0.05 seconds
+----------------------------------------------------------------------
 ```
 
 ## What This Solution Demonstrates
@@ -102,4 +110,10 @@ Source: Cache
 - Questions like "What is Python?" and "what is python?" will hit the same cache entry
 - Cached responses expire after 24 hours
 - Cache misses trigger API calls, and responses are automatically cached
+
+## Performance Metrics
+
+- **Processing time**: Time taken by the AISHE API to process the question (only shown on cache miss)
+- **Execution time**: Total time from receiving the question to displaying the answer (always shown)
+- Cache hits are significantly faster (~0.05s) compared to API calls (~2.47s)
 

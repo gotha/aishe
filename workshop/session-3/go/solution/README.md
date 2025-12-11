@@ -66,6 +66,10 @@ SOURCES:
 ======================================================================
 Processing time: 2.45 seconds
 ======================================================================
+
+----------------------------------------------------------------------
+Execution time: 2.48 seconds
+----------------------------------------------------------------------
 ```
 
 ### Second Run with Similar Question (Semantic Cache Hit)
@@ -87,6 +91,10 @@ SOURCES:
 ======================================================================
 Source: Semantic Cache (LangCache)
 ======================================================================
+
+----------------------------------------------------------------------
+Execution time: 0.12 seconds
+----------------------------------------------------------------------
 ```
 
 ## What This Solution Demonstrates
@@ -126,6 +134,12 @@ All these variations will hit the same cache entry because they have similar sem
 2. **Set**: `POST /cache/{cache_id}/set`
    - Stores new question-response pairs
    - Automatically generates embeddings for semantic search
+
+## Performance Metrics
+
+- **Processing time**: Time taken by the AISHE API to process the question (only shown on cache miss)
+- **Execution time**: Total time from receiving the question to displaying the answer (always shown)
+- Semantic cache hits are faster (~0.12s) compared to API calls (~2.48s), though slightly slower than traditional Redis cache due to similarity search overhead
 
 ## Troubleshooting
 
