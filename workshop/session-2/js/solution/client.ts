@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { createClient, type RedisClientType } from "redis";
 
 import {
@@ -8,9 +9,9 @@ import {
     REDIS_DATABASE,
     REDIS_USERNAME,
     REDIS_PASSWORD,
+    REDIS_CACHE_KEY_PREFIX,
     APIClientError,
     aisheAPIRequest,
-    generateCacheKey,
     type HealthResponse,
     type AnswerResponse,
     ServerNotReachableError,
@@ -124,7 +125,7 @@ export class AIsheHTTPClient {
         const endpoint = `${this.baseUrl}/health`;
         const response = await aisheAPIRequest("GET", endpoint, this.timeout);
         const healthResponse = response as HealthResponse;
-        if (false && healthResponse.status !== "healthy") {
+        if (healthResponse.status !== "healthy") {
             throw new APIClientError("Health check failed");
         }
         return healthResponse;
@@ -182,7 +183,7 @@ export class AIsheHTTPClient {
         }
 
         // First, check if the question is cached in Redis
-        const cacheKey = generateCacheKey(question);
+        const cacheKey = this.generateCacheKey(question);
         const cachedAnswer = await this.redisClient.get(cacheKey);
         if (cachedAnswer) {
             console.log(`INFO: Cache HIT for question: ${question}`);
@@ -219,7 +220,25 @@ export class AIsheHTTPClient {
         // 2. Check if the question is cached in Redis
         //    - if found (cache HIT), return true
         //    - otherwise, return false
-        const cacheKey = generateCacheKey(question);
+        const cacheKey = this.generateCacheKey(question);
         return (await this.redisClient.exists(cacheKey)) > 0;
+    }
+
+    /**
+     * Generate a cache key for a question
+     *
+     * Uses SHA-256 hash to generate a unique key.
+     *
+     * @param question - Question to generate a cache key for.
+     *
+     * @returns Cache key.
+     */
+    private generateCacheKey(question: string): string {
+        // TODO: implement this function
+        // 1. Create a SHA-256 hash of the question
+        // 2. Return the cache key with a prefix, e.g. aishe:question:<hash>
+        //    Hint: you may use REDIS_CACHE_KEY_PREFIX from 'aishe-client' for the prefix
+        const hash = crypto.createHash("sha256").update(question).digest("hex");
+        return `${REDIS_CACHE_KEY_PREFIX}:${hash}`;
     }
 }

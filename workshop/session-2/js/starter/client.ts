@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { createClient, type RedisClientType } from "redis";
 
 import {
@@ -8,9 +9,9 @@ import {
     REDIS_DATABASE,
     REDIS_USERNAME,
     REDIS_PASSWORD,
+    REDIS_CACHE_KEY_PREFIX,
     APIClientError,
     aisheAPIRequest,
-    generateCacheKey,
     type HealthResponse,
     type AnswerResponse,
     ServerNotReachableError,
@@ -171,4 +172,21 @@ export class AIsheHTTPClient {
         //    - otherwise, return false
         throw new Error("AIsheHTTPClient.isCached: Not implemented");
     }
+
+    /**
+     * Generate a cache key for a question
+     *
+     * Uses SHA-256 hash to generate a unique key.
+     *
+     * @param question - Question to generate a cache key for.
+     *
+     * @returns Cache key.
+     */
+    private generateCacheKey(question: string): string {
+        // TODO: implement this function
+        // 1. Create a SHA-256 hash of the question
+        // 2. Return the cache key with a prefix, e.g. aishe:question:<hash>
+        //    Hint: you may use REDIS_CACHE_KEY_PREFIX from 'aishe-client' for the prefix
+        throw new Error("AIsheHTTPClient.generateCacheKey: Not implemented");
+    } 
 }
