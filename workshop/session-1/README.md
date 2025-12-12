@@ -18,7 +18,7 @@ Before starting this session, ensure you have:
 
 ### Command-Line Interface
 
-- Accepts questions in the command line as an argument
+- Accepts questions in the command line
 
 ### API Communication
 
