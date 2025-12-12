@@ -23,6 +23,7 @@ class RAGPipeline:
     def __init__(
         self,
         ollama_model: str = "llama3.2:3b",
+        ollama_host: str = "http://localhost:11434",
         max_context_length: int = 4000,
         max_search_results: int = 3
     ):
@@ -33,7 +34,7 @@ class RAGPipeline:
             max_context_length: Maximum context length in characters
             max_search_results: Maximum number of Wikipedia articles to retrieve
         """
-        self.ollama_client = OllamaClient(model=ollama_model)
+        self.ollama_client = OllamaClient(host=ollama_host, model=ollama_model)
         self.max_context_length = max_context_length
         self.max_search_results = max_search_results
 

@@ -28,6 +28,10 @@
             # Note: mcp, wikipedia-mcp, ollama, fastapi, uvicorn, httpx are not available in nixpkgs
             # These will be installed via pip in the shellHook
           ]);
+
+        # Google Cloud SDK with GKE auth plugin
+        gcloud = pkgs.google-cloud-sdk.withExtraComponents
+          [ pkgs.google-cloud-sdk.components.gke-gcloud-auth-plugin ];
       in {
         apps.aishe = {
           type = "app";
@@ -82,11 +86,19 @@
             # Python environment with native Nix packages
             pythonEnv
 
+            # Python package manager
+            uv
+
             # Ollama for local LLM
             ollama
 
             # Node.js / npm for JS & TS clients
             nodejs
+            
+            # Cloud and Kubernetes tools
+            gcloud
+            kubectl
+            kubernetes-helm
 
             # Development tools
             git
@@ -111,6 +123,7 @@
             echo "AISHE Development Environment Loaded"
             echo "========================================"
             echo "Python: $(python --version)"
+            echo "uv: $(uv --version)"
             echo "Ollama: $(ollama --version)"
             echo "Virtual environment: .venv"
             echo "Node: $(${nodejs}/bin/node --version)"
@@ -119,6 +132,9 @@
             echo "  nix run .#server   - Start the API server"
             echo "  nix run .#aishe    - Run the Python CLI client"
             echo "  nix run .#aishe-js - Build & run the JS CLI"
+            echo ""
+            echo "Workshop setup:"
+            echo "  cd workshop/session-X/python && uv sync"
             echo ""
             echo "To start Ollama service, run:"
             echo "  ollama serve"

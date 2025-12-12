@@ -4,7 +4,9 @@ AIshe is an AI assistant that can help you get the answers you need using Wikipe
 
 ## Overview
 
-This project implements a Retrieval-Augmented Generation (RAG) system that:
+This project was created for the Redis AI Workshop on 13 Dec 2025 in Sofia, Bulgaria.
+
+AISHE is a Retrieval-Augmented Generation (RAG) system that:
 - Searches Wikipedia for relevant articles based on your questions
 - Retrieves and processes article content
 - Generates accurate answers using a local LLM (via Ollama)

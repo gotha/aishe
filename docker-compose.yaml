@@ -1,0 +1,93 @@
+services:
+  # Redis for caching
+  redis:
+    image: redis:8.4-alpine
+    container_name: aishe-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aishe-network
+
+  # Ollama for LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aishe-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "bash", "-c", "{ printf >&3 'GET / HTTP/1.0\\r\\n\\r\\n'; cat <&3; } 3<>/dev/tcp/localhost/11434 | grep 'Ollama is' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - aishe-network
+
+  # One-time service to pull the llama3.2:3b model
+  ollama-pull-model:
+    image: ollama/ollama:latest
+    container_name: aishe-ollama-pull
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    command: pull llama3.2:3b
+    networks:
+      - aishe-network
+    restart: "no"
+
+  # AISHE API Server
+  aishe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aishe-server
+    ports:
+      - "8000:8000"
+    environment:
+      - AISHE_SERVER_HOST=0.0.0.0
+      - AISHE_SERVER_PORT=8000
+      - AISHE_OLLAMA_MODEL=llama3.2:3b
+      - OLLAMA_HOST=http://ollama:11434
+      - REDIS_ADDR=redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      ollama-pull-model:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - aishe-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local
+  ollama-data:
+    driver: local
+
+networks:
+  aishe-network:
+    driver: bridge
+
+

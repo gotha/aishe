@@ -1,0 +1,31 @@
+ollama:
+  gpu:
+    enabled: true
+    type: 'nvidia'
+    number: 1
+  models:
+    pull:
+      - llama3.2:3b
+      - all-minilm:latest
+
+# Expose Ollama via LoadBalancer for external access
+# Restricted to your current IP: 62.67.249.178
+service:
+  type: LoadBalancer
+  annotations:
+    cloud.google.com/load-balancer-type: "External"
+
+# Restrict LoadBalancer access to specific IP ranges
+loadBalancerSourceRanges:
+  - 62.67.249.178/32
+
+# Node selector required for GKE Autopilot GPU nodes
+# Specify the GPU accelerator type you want to use
+nodeSelector:
+  cloud.google.com/gke-accelerator: nvidia-l4
+
+# Tolerations for GPU nodes
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
