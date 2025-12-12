@@ -10,11 +10,11 @@ from dotenv import load_dotenv
 
 
 def get_from_cache(lang_cache: LangCache, question: str) -> dict | None:
-    return
+    raise NotImplementedError
 
 
 def save_to_cache(lang_cache: LangCache, question: str, response_data: dict) -> None:
-    return
+    raise NotImplementedError
 
 
 def main():
@@ -138,6 +138,10 @@ def main():
                     f"Processing time: {data['processing_time']:.2f} seconds")
             print("=" * 70)
 
+    except NotImplementedError:
+        print("Error: Cache functions are not yet implemented")
+        print("Please implement get_from_cache() and save_to_cache() functions")
+        sys.exit(1)
     except Exception as e:
         print(f"Error initializing LangCache: {e}")
         print("Please check your credentials in .env file")
