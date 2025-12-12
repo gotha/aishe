@@ -87,7 +87,7 @@ func getFromCache(client *LangCacheClient, question string) (*Response, error) {
 	}
 
 	// Build the search URL
-	url := fmt.Sprintf("%s/cache/%s/search", client.ServerURL, client.CacheID)
+	url := fmt.Sprintf("%s/v1/caches/%s/entries/search", client.ServerURL, client.CacheID)
 
 	// Create HTTP request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -153,7 +153,7 @@ func saveToCache(client *LangCacheClient, question string, response *Response) e
 	}
 
 	// Build the set URL
-	url := fmt.Sprintf("%s/cache/%s/set", client.ServerURL, client.CacheID)
+	url := fmt.Sprintf("%s/v1/caches/%s/entries", client.ServerURL, client.CacheID)
 
 	// Create HTTP request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -241,7 +241,10 @@ func main() {
 	var fromCache bool
 
 	cachedResponse, err := getFromCache(langCache, question)
-	if err == nil && cachedResponse != nil {
+	if err != nil {
+		fmt.Printf("⚠ Cache lookup error: %v\n", err)
+	}
+	if cachedResponse != nil {
 		fmt.Println("✓ Found in semantic cache! (no API call needed)\n")
 		data = cachedResponse
 		fromCache = true
@@ -335,4 +338,3 @@ func main() {
 	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
 	fmt.Println(strings.Repeat("-", 70))
 }
-
