@@ -52,6 +52,7 @@ and use it to complete session 3.
 ```bash
 cd workshop/session-3/js/
 npm install
+cp .env.example .env
 export LANGCACHE_API_KEY="<YOUR_API_KEY>"
 export LANGCACHE_CACHE_ID="<YOUR_CACHE_ID>"
 export LANGCACHE_SERVER_URL="<LANGCACHE_SERVER_URL>"

@@ -37,6 +37,7 @@ JavaScript without performing any type checks or guards.
 ```bash
 cd workshop/session-1/js/
 npm install
+cp .env.example .env
 ```
 
 ## Run

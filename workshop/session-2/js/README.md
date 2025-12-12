@@ -47,6 +47,7 @@ and use it to complete session 2.
 ```bash
 cd workshop/session-2/js/
 npm install
+cp .env.example .env
 ```
 
 ## Run
