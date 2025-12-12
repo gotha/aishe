@@ -103,6 +103,7 @@ async function main(): Promise<void> {
         // Measured execution time: 2.531 seconds
         // ======================================================================
 
+        // TODO: set these values based on the answer response
         const source = "NOT_IMPLEMENTED";
         const processingTime = answer.processing_time;
         const measuredTime = (endTime - startTime) / 1000;

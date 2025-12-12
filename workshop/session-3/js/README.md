@@ -27,6 +27,8 @@ and use it to complete session 3.
 - [x] modify constructor() to create a Redis client
 - [x] implement create() static method + add a basic healthcheck by pinging Redis
 - [x] implement close()
+- [x] implement isCached()
+- [x] implement generateCacheKey()
 - [x] modify askQuestion() to check the cache before fetching from AIshe API
     - [x] if answer is cahed, retrieve cached value
     - [x] otherwise, generate a cache key, fetch from AIshe API, cache & return your result
