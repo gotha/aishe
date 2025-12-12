@@ -127,8 +127,8 @@ func main() {
 	// Print total execution time
 	executionTime := time.Since(startTime).Seconds()
 	fmt.Println()
-	fmt.Println(strings.Repeat("-", 70))
+	fmt.Println(strings.Repeat("=", 70))
 	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
-	fmt.Println(strings.Repeat("-", 70))
+	fmt.Println(strings.Repeat("=", 70))
 }
 

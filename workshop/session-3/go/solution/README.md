@@ -79,9 +79,9 @@ SOURCES:
 Processing time: 2.45 seconds
 ======================================================================
 
-----------------------------------------------------------------------
+======================================================================
 Execution time: 2.48 seconds
-----------------------------------------------------------------------
+======================================================================
 ```
 
 ### Second Run with Similar Question (Semantic Cache Hit)
@@ -104,11 +104,12 @@ SOURCES:
 ======================================================================
 Source: Semantic Cache (LangCache)
 Similarity score: 0.9234
+Original processing time: 2.48 seconds
 ======================================================================
 
-----------------------------------------------------------------------
+======================================================================
 Execution time: 0.12 seconds
-----------------------------------------------------------------------
+======================================================================
 ```
 
 ## What This Solution Demonstrates
@@ -151,7 +152,8 @@ All these variations will hit the same cache entry because they have similar sem
 
 ## Performance Metrics
 
-- **Processing time**: Time taken by the AISHE API to process the question (only shown on cache miss)
+- **Processing time**: Time taken by the AISHE API to process the question (shown on cache miss)
+- **Original processing time**: The original API processing time from when the response was first cached (shown on cache hit)
 - **Execution time**: Total time from receiving the question to displaying the answer (always shown)
 - **Similarity score**: When a cache hit occurs, shows how similar the cached question is to your query (0.0 to 1.0, where 1.0 is identical). Only displayed if the LangCache API returns this value.
 - Semantic cache hits are faster (~0.12s) compared to API calls (~2.48s), though slightly slower than traditional Redis cache due to similarity search overhead

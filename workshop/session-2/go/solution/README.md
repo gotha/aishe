@@ -72,9 +72,9 @@ SOURCES:
 Processing time: 2.45 seconds
 ======================================================================
 
-----------------------------------------------------------------------
+======================================================================
 Execution time: 2.47 seconds
-----------------------------------------------------------------------
+======================================================================
 ```
 
 ### Second Run (Cache Hit)
@@ -95,11 +95,12 @@ SOURCES:
 
 ======================================================================
 Source: Redis Cache
+Original processing time: 2.47 seconds
 ======================================================================
 
-----------------------------------------------------------------------
+======================================================================
 Execution time: 0.05 seconds
-----------------------------------------------------------------------
+======================================================================
 ```
 
 ## What This Solution Demonstrates
@@ -129,7 +130,8 @@ Execution time: 0.05 seconds
 
 ## Performance Metrics
 
-- **Processing time**: Time taken by the AISHE API to process the question (only shown on cache miss)
+- **Processing time**: Time taken by the AISHE API to process the question (shown on cache miss)
+- **Original processing time**: The original API processing time from when the response was first cached (shown on cache hit)
 - **Execution time**: Total time from receiving the question to displaying the answer (always shown)
 - Cache hits are significantly faster (~0.05s) compared to API calls (~2.47s)
 
