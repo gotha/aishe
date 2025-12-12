@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -36,19 +37,9 @@ type Response struct {
 // getCacheKey generates a cache key from the question
 //
 // Hints:
-// 1. Normalize the question:
-//    - Convert to lowercase using strings.ToLower()
-//    - Trim whitespace using strings.TrimSpace()
-//    This ensures "What is Python?" and "what is python?" produce the same key
-//
-// 2. Hash the normalized question:
-//    - Use crypto/sha256 package
-//    - hash := sha256.Sum256([]byte(normalized))
-//    - Convert to hex string: hex.EncodeToString(hash[:])
-//
-// 3. Add a namespace prefix:
-//    - Format: "aishe:question:{hash}"
-//    - Use fmt.Sprintf() to create the final key
+// 1. Normalize the question (lowercase, trim whitespace)
+// 2. Hash the normalized question for consistent key generation
+// 3. Add a namespace prefix to the key
 func getCacheKey(question string) string {
 	panic("not implemented")
 }
@@ -56,20 +47,10 @@ func getCacheKey(question string) string {
 // getFromCache retrieves cached response for a question
 //
 // Hints:
-// 1. Generate the cache key using getCacheKey()
-//
-// 2. Query Redis:
-//    - Use client.Get(ctx, cacheKey).Result()
-//    - You'll need context.Background() for ctx
-//
-// 3. Handle cache miss:
-//    - If err == redis.Nil, return nil (cache miss)
-//    - If other error, return the error
-//
-// 4. Parse the cached JSON:
-//    - The cached value is a JSON string
-//    - Use json.Unmarshal() to convert to Response struct
-//    - Return pointer to the Response
+// 1. Generate the cache key from the question
+// 2. Query Redis for the cached value
+// 3. Handle cache miss vs. other errors appropriately
+// 4. Parse and return the cached JSON response
 func getFromCache(client *redis.Client, question string) (*Response, error) {
 	panic("not implemented")
 }
@@ -77,22 +58,20 @@ func getFromCache(client *redis.Client, question string) (*Response, error) {
 // saveToCache saves response to cache
 //
 // Hints:
-// 1. Generate the cache key using getCacheKey()
-//
-// 2. Convert response to JSON:
-//    - Use json.Marshal() to convert Response struct to JSON bytes
-//
-// 3. Save to Redis with expiration:
-//    - Use client.Set(ctx, key, value, expiration)
-//    - Set expiration to 24 hours: 24 * time.Hour
-//    - You'll need context.Background() for ctx
-//
-// 4. Return any errors from the Set operation
+// 1. Generate the cache key from the question
+// 2. Serialize the response to JSON
+// 3. Save to Redis with an appropriate expiration time
+// 4. Handle any errors from the operation
 func saveToCache(client *redis.Client, question string, response *Response) error {
 	panic("not implemented")
 }
 
 func main() {
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		// .env file is optional, continue with system environment variables
+	}
+
 	// Check if question was provided
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <your question>")
@@ -103,9 +82,18 @@ func main() {
 	// Get question from command line arguments
 	question := strings.Join(os.Args[1:], " ")
 
-	// Connect to Redis (running in Docker on port 6379)
+	// Start timing
+	startTime := time.Now()
+
+	// Get Redis address from environment variable (default: localhost:6379)
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+
+	// Connect to Redis
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     redisAddr,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -114,7 +102,7 @@ func main() {
 	// Test connection
 	ctx := context.Background()
 	if err := rdb.Ping(ctx).Err(); err != nil {
-		fmt.Println("Error: Could not connect to Redis at localhost:6379")
+		fmt.Printf("Error: Could not connect to Redis at %s\n", redisAddr)
 		fmt.Println("Make sure Redis is running in Docker.")
 		os.Exit(1)
 	}
@@ -126,7 +114,10 @@ func main() {
 	var fromCache bool
 
 	cachedResponse, err := getFromCache(rdb, question)
-	if err == nil && cachedResponse != nil {
+	if err != nil {
+		fmt.Printf("Warning: Error reading from cache: %v\n", err)
+	}
+	if cachedResponse != nil {
 		fmt.Println("✓ Found in cache! (no API call needed)\n")
 		data = cachedResponse
 		fromCache = true
@@ -134,8 +125,12 @@ func main() {
 		fmt.Println("✗ Not in cache, calling AISHE API...")
 		fmt.Println("Waiting for response...\n")
 
-		// AISHE server URL (running in Docker on port 8000)
-		url := "http://localhost:8000/api/v1/ask"
+		// Get AISHE server URL from environment variable (default: http://localhost:8000)
+		aisheURL := os.Getenv("AISHE_URL")
+		if aisheURL == "" {
+			aisheURL = "http://localhost:8000"
+		}
+		url := aisheURL + "/api/v1/ask"
 
 		// Prepare request payload
 		payload := Request{Question: question}
@@ -212,5 +207,11 @@ func main() {
 		fmt.Printf("Processing time: %.2f seconds\n", data.ProcessingTime)
 	}
 	fmt.Println(strings.Repeat("=", 70))
-}
 
+	// Print total execution time
+	executionTime := time.Since(startTime).Seconds()
+	fmt.Println()
+	fmt.Println(strings.Repeat("-", 70))
+	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
+	fmt.Println(strings.Repeat("-", 70))
+}

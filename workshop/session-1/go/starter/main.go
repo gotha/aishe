@@ -4,9 +4,17 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		// .env file is optional, continue with system environment variables
+	}
+
 	// Check if question was provided
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <your question>")
@@ -17,40 +25,24 @@ func main() {
 	// Get question from command line arguments
 	question := strings.Join(os.Args[1:], " ")
 
+	// Start timing
+	startTime := time.Now()
+
 	fmt.Printf("Asking: %s\n", question)
 	fmt.Println("Waiting for response...\n")
 
 	// TODO: Implement the AISHE API call
 	//
 	// Hints:
-	// 1. Define structs for Request and Response to match the API format
-	//    - Request: {"question": "..."}
-	//    - Response: {"answer": "...", "sources": [...], "processing_time": 2.45}
-	//
-	// 2. Create the request payload:
-	//    - Use json.Marshal() to convert your Request struct to JSON
-	//    - The API endpoint is: http://localhost:8000/api/v1/ask
-	//
-	// 3. Make the HTTP POST request:
-	//    - Use http.Client with a timeout (e.g., 120 seconds)
-	//    - Set Content-Type header to "application/json"
-	//    - Use client.Post() or http.NewRequest() + client.Do()
-	//
-	// 4. Handle the response:
-	//    - Check for HTTP errors (resp.StatusCode != 200)
-	//    - Use json.NewDecoder(resp.Body).Decode() to parse the JSON response
-	//    - Don't forget to defer resp.Body.Close()
-	//
-	// 5. Display the results:
-	//    - Print the answer
-	//    - Print sources (if available)
-	//    - Print processing time
-	//
-	// 6. Handle errors gracefully:
-	//    - Connection errors (server not running)
-	//    - Timeout errors
-	//    - HTTP errors (non-200 status codes)
+	// 1. Define structs to represent the API request and response
+	// 2. Build a JSON payload with the question
+	// 3. Make an HTTP POST request to the AISHE API endpoint
+	// 4. Parse the JSON response
+	// 5. Display the answer, sources, and processing time
+	// 6. Display the total execution time using: time.Since(startTime).Seconds()
+	// 7. Handle errors appropriately (connection, timeout, HTTP errors)
 
+	_ = startTime // TODO: Remove this line when you implement execution time tracking
 	panic("not implemented ...")
 }
 

@@ -5,7 +5,22 @@ This is the complete solution for Session 1: Building a basic CLI client that ca
 ## Prerequisites
 
 - Go 1.21 or higher installed
-- AISHE server running on `http://localhost:8000`
+- AISHE server running (default: `http://localhost:8000`)
+
+## Setup (Optional)
+
+You can optionally create a `.env` file to configure the AISHE server URL:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` if needed:
+```bash
+AISHE_URL=http://localhost:8000
+```
+
+If no `.env` file is present, the default values will be used.
 
 ## Running the Solution
 

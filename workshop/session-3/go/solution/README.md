@@ -5,19 +5,31 @@ This is the complete solution for Session 3: Implementing semantic caching with 
 ## Prerequisites
 
 - Go 1.21 or higher installed
-- AISHE server running on `http://localhost:8000`
+- AISHE server running (default: `http://localhost:8000`)
 - Redis Cloud LangCache account with credentials
 
 ## Setup
 
-1. Create a `.env` file in this directory with your LangCache credentials:
+1. Copy the `.env.example` file to `.env` and fill in your credentials:
    ```bash
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file with your actual credentials:
+   ```bash
+   AISHE_URL=http://localhost:8000
    SERVER_URL=your-instance.redis.cloud
    CACHE_ID=your-cache-id
    API_KEY=your-api-key
+   SIMILARITY_THRESHOLD=0.8
    ```
 
-   **Note**: The `SERVER_URL` should be just the hostname (without `https://`). The code will automatically add the `https://` prefix.
+   **Configuration Notes**:
+   - `AISHE_URL`: The AISHE server URL (default: `http://localhost:8000`)
+   - `SERVER_URL`: LangCache hostname (without `https://`). The code will automatically add the `https://` prefix.
+   - `CACHE_ID`: Your LangCache cache ID
+   - `API_KEY`: Your LangCache API key
+   - `SIMILARITY_THRESHOLD`: Controls how similar questions need to be for a cache hit (0.0 to 1.0). Higher values require closer matches. Default is 0.8.
 
 ## Running the Solution
 
@@ -76,6 +88,7 @@ Execution time: 2.48 seconds
 ```
 Asking: What's the capital city of France?
 ✓ Found in semantic cache! (no API call needed)
+  Similarity score: 0.9234
 
 ======================================================================
 ANSWER:
@@ -90,6 +103,7 @@ SOURCES:
 
 ======================================================================
 Source: Semantic Cache (LangCache)
+Similarity score: 0.9234
 ======================================================================
 
 ----------------------------------------------------------------------
@@ -104,6 +118,7 @@ Execution time: 0.12 seconds
 - Loading environment variables from `.env` files using `github.com/joho/godotenv`
 - Semantic matching with configurable similarity threshold (0.8)
 - Storing and retrieving responses based on meaning, not exact text
+- Displaying similarity scores when cache hits occur (if provided by the API)
 - Handling LangCache API responses with proper error checking
 
 ## Key Components
@@ -120,7 +135,6 @@ Unlike traditional caching (Session 2), semantic caching matches questions by **
 
 - "What is the capital of France?" ✓
 - "What's the capital city of France?" ✓ (semantic match)
-- "Tell me France's capital" ✓ (semantic match)
 - "Capital of France?" ✓ (semantic match)
 
 All these variations will hit the same cache entry because they have similar semantic meaning!
@@ -139,6 +153,7 @@ All these variations will hit the same cache entry because they have similar sem
 
 - **Processing time**: Time taken by the AISHE API to process the question (only shown on cache miss)
 - **Execution time**: Total time from receiving the question to displaying the answer (always shown)
+- **Similarity score**: When a cache hit occurs, shows how similar the cached question is to your query (0.0 to 1.0, where 1.0 is identical). Only displayed if the LangCache API returns this value.
 - Semantic cache hits are faster (~0.12s) compared to API calls (~2.48s), though slightly slower than traditional Redis cache due to similarity search overhead
 
 ## Troubleshooting

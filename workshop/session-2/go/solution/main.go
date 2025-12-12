@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -81,6 +82,11 @@ func main() {
 	// Start timing
 	startTime := time.Now()
 
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		// .env file is optional, continue with system environment variables
+	}
+
 	// Check if question was provided
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <your question>")
@@ -91,9 +97,15 @@ func main() {
 	// Get question from command line arguments
 	question := strings.Join(os.Args[1:], " ")
 
-	// Connect to Redis (running in Docker on port 6379)
+	// Get Redis address from environment variable (default: localhost:6379)
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+
+	// Connect to Redis
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     redisAddr,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -122,8 +134,12 @@ func main() {
 		fmt.Println("✗ Not in cache, calling AISHE API...")
 		fmt.Println("Waiting for response...\n")
 
-		// AISHE server URL (running in Docker on port 8000)
-		url := "http://localhost:8000/api/v1/ask"
+		// Get AISHE server URL from environment variable (default: http://localhost:8000)
+		aisheURL := os.Getenv("AISHE_URL")
+		if aisheURL == "" {
+			aisheURL = "http://localhost:8000"
+		}
+		url := aisheURL + "/api/v1/ask"
 
 		// Prepare request payload
 		payload := Request{Question: question}

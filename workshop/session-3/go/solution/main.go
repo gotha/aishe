@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,6 +33,12 @@ type Response struct {
 	ProcessingTime float64  `json:"processing_time"`
 }
 
+// CachedResponse wraps a Response with optional similarity score
+type CachedResponse struct {
+	Response   *Response
+	Similarity *float64
+}
+
 // LangCacheClient represents a client for LangCache semantic caching
 type LangCacheClient struct {
 	ServerURL  string
@@ -48,8 +55,9 @@ type LangCacheSearchRequest struct {
 
 // LangCacheSearchEntry represents a single search result entry
 type LangCacheSearchEntry struct {
-	Prompt   string `json:"prompt"`
-	Response string `json:"response"`
+	Prompt     string   `json:"prompt"`
+	Response   string   `json:"response"`
+	Similarity *float64 `json:"similarity,omitempty"` // Optional similarity score
 }
 
 // LangCacheSearchResponse represents the search response from LangCache
@@ -74,11 +82,11 @@ func NewLangCacheClient(serverURL, cacheID, apiKey string) *LangCacheClient {
 }
 
 // getFromCache searches for a cached response using semantic search
-func getFromCache(client *LangCacheClient, question string) (*Response, error) {
+func getFromCache(client *LangCacheClient, question string, threshold float64) (*CachedResponse, error) {
 	// Prepare search request
 	searchReq := LangCacheSearchRequest{
 		Prompt:              question,
-		SimilarityThreshold: 0.8, // Lower threshold to allow more semantic matches
+		SimilarityThreshold: threshold,
 	}
 
 	jsonData, err := json.Marshal(searchReq)
@@ -130,7 +138,11 @@ func getFromCache(client *LangCacheClient, question string) (*Response, error) {
 		return nil, err
 	}
 
-	return &cachedData, nil
+	// Return cached response with similarity score (if available)
+	return &CachedResponse{
+		Response:   &cachedData,
+		Similarity: entry.Similarity,
+	}, nil
 }
 
 // saveToCache saves response to semantic cache
@@ -204,6 +216,14 @@ func main() {
 	cacheID := os.Getenv("CACHE_ID")
 	serverURL := os.Getenv("SERVER_URL")
 
+	// Get similarity threshold from environment variable (default: 0.8)
+	threshold := 0.8
+	if thresholdStr := os.Getenv("SIMILARITY_THRESHOLD"); thresholdStr != "" {
+		if parsedThreshold, err := strconv.ParseFloat(thresholdStr, 64); err == nil {
+			threshold = parsedThreshold
+		}
+	}
+
 	// Validate required credentials
 	var missingFields []string
 	if apiKey == "" {
@@ -239,21 +259,31 @@ func main() {
 	// Check cache first using semantic search
 	var data *Response
 	var fromCache bool
+	var similarity *float64
 
-	cachedResponse, err := getFromCache(langCache, question)
+	cachedResponse, err := getFromCache(langCache, question, threshold)
 	if err != nil {
 		fmt.Printf("⚠ Cache lookup error: %v\n", err)
 	}
 	if cachedResponse != nil {
-		fmt.Println("✓ Found in semantic cache! (no API call needed)\n")
-		data = cachedResponse
+		fmt.Println("✓ Found in semantic cache! (no API call needed)")
+		if cachedResponse.Similarity != nil {
+			fmt.Printf("  Similarity score: %.4f\n", *cachedResponse.Similarity)
+		}
+		fmt.Println()
+		data = cachedResponse.Response
+		similarity = cachedResponse.Similarity
 		fromCache = true
 	} else {
 		fmt.Println("✗ Not in cache, calling AISHE API...")
 		fmt.Println("Waiting for response...\n")
 
-		// AISHE server URL (running in Docker on port 8000)
-		url := "http://localhost:8000/api/v1/ask"
+		// Get AISHE server URL from environment variable (default: http://localhost:8000)
+		aisheURL := os.Getenv("AISHE_URL")
+		if aisheURL == "" {
+			aisheURL = "http://localhost:8000"
+		}
+		url := aisheURL + "/api/v1/ask"
 
 		// Prepare request payload
 		payload := Request{Question: question}
@@ -321,11 +351,14 @@ func main() {
 		}
 	}
 
-	// Print processing time
+	// Print processing time or cache info
 	fmt.Println()
 	fmt.Println(strings.Repeat("=", 70))
 	if fromCache {
 		fmt.Println("Source: Semantic Cache (LangCache)")
+		if similarity != nil {
+			fmt.Printf("Similarity score: %.4f\n", *similarity)
+		}
 	} else {
 		fmt.Printf("Processing time: %.2f seconds\n", data.ProcessingTime)
 	}

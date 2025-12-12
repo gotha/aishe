@@ -5,8 +5,24 @@ This is the complete solution for Session 2: Adding Redis caching to improve per
 ## Prerequisites
 
 - Go 1.21 or higher installed
-- AISHE server running on `http://localhost:8000`
-- Redis server running on `localhost:6379`
+- AISHE server running (default: `http://localhost:8000`)
+- Redis server running (default: `localhost:6379`)
+
+## Setup (Optional)
+
+You can optionally create a `.env` file to configure the servers:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` if needed:
+```bash
+AISHE_URL=http://localhost:8000
+REDIS_ADDR=localhost:6379
+```
+
+If no `.env` file is present, the default values will be used.
 
 ## Running the Solution
 

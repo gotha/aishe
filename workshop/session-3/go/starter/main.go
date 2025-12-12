@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,6 +33,12 @@ type Response struct {
 	ProcessingTime float64  `json:"processing_time"`
 }
 
+// CachedResponse wraps a Response with optional similarity score
+type CachedResponse struct {
+	Response   *Response
+	Similarity *float64
+}
+
 // LangCacheClient represents a client for LangCache semantic caching
 type LangCacheClient struct {
 	ServerURL string
@@ -55,67 +62,24 @@ func NewLangCacheClient(serverURL, cacheID, apiKey string) *LangCacheClient {
 // getFromCache searches for a cached response using semantic search
 //
 // Hints:
-// 1. Create a search request:
-//    - Define a struct with fields: Prompt (string) and SimilarityThreshold (float64)
-//    - Set Prompt to the question
-//    - Set SimilarityThreshold to 0.8 (allows semantic matches)
-//    - Marshal to JSON using json.Marshal()
-//
-// 2. Build the API URL:
-//    - Format: "{ServerURL}/cache/{CacheID}/search"
-//    - Use fmt.Sprintf() to construct the URL
-//
-// 3. Create and send HTTP POST request:
-//    - Use http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-//    - Set headers:
-//      * Content-Type: application/json
-//      * Authorization: Bearer {APIKey}
-//    - Use client.HTTPClient.Do(req) to send
-//
-// 4. Parse the response:
-//    - Define a struct for the response with a Data field (array of entries)
-//    - Each entry should have Prompt and Response fields
-//    - Use json.NewDecoder(resp.Body).Decode()
-//
-// 5. Extract the cached data:
-//    - If Data array is empty, return nil (cache miss)
-//    - Get the first entry (most similar)
-//    - The Response field contains JSON string - unmarshal it to Response struct
-//
-// 6. Handle errors appropriately
-func getFromCache(client *LangCacheClient, question string) (*Response, error) {
+// 1. Build a search request payload with the question and threshold
+// 2. Make a POST request to the LangCache search endpoint
+// 3. Include proper authentication headers
+// 4. Parse the response to extract matching entries
+// 5. If a match is found, unmarshal the cached data and return it with similarity info
+// 6. Return nil if no matches found (cache miss)
+func getFromCache(client *LangCacheClient, question string, threshold float64) (*CachedResponse, error) {
 	panic("not implemented")
 }
 
 // saveToCache saves response to semantic cache
 //
 // Hints:
-// 1. Convert response to JSON string:
-//    - Use json.Marshal() to convert Response struct to bytes
-//    - Convert bytes to string
-//
-// 2. Create a set request:
-//    - Define a struct with fields: Prompt (string) and Response (string)
-//    - Set Prompt to the question
-//    - Set Response to the JSON string from step 1
-//    - Marshal to JSON using json.Marshal()
-//
-// 3. Build the API URL:
-//    - Format: "{ServerURL}/cache/{CacheID}/set"
-//    - Use fmt.Sprintf() to construct the URL
-//
-// 4. Create and send HTTP POST request:
-//    - Use http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-//    - Set headers:
-//      * Content-Type: application/json
-//      * Authorization: Bearer {APIKey}
-//    - Use client.HTTPClient.Do(req) to send
-//
-// 5. Check the response:
-//    - Status code should be 200 or 201
-//    - Return error if not successful
-//
-// 6. Return nil on success
+// 1. Serialize the response to JSON format
+// 2. Build a request payload with the question and serialized response
+// 3. Make a POST request to the LangCache set endpoint
+// 4. Include proper authentication headers
+// 5. Verify the operation succeeded
 func saveToCache(client *LangCacheClient, question string, response *Response) error {
 	panic("not implemented")
 }
@@ -140,6 +104,14 @@ func main() {
 	apiKey := os.Getenv("API_KEY")
 	cacheID := os.Getenv("CACHE_ID")
 	serverURL := os.Getenv("SERVER_URL")
+
+	// Get similarity threshold from environment variable (default: 0.8)
+	threshold := 0.8
+	if thresholdStr := os.Getenv("SIMILARITY_THRESHOLD"); thresholdStr != "" {
+		if parsedThreshold, err := strconv.ParseFloat(thresholdStr, 64); err == nil {
+			threshold = parsedThreshold
+		}
+	}
 
 	// Validate required credentials
 	var missingFields []string
@@ -171,23 +143,36 @@ func main() {
 	// Initialize LangCache client
 	langCache := NewLangCacheClient(serverURL, cacheID, apiKey)
 
+	// Start timing
+	startTime := time.Now()
+
 	fmt.Printf("Asking: %s\n", question)
 
 	// Check cache first using semantic search
 	var data *Response
 	var fromCache bool
+	var similarity *float64
 
-	cachedResponse, err := getFromCache(langCache, question)
+	cachedResponse, err := getFromCache(langCache, question, threshold)
 	if err == nil && cachedResponse != nil {
-		fmt.Println("✓ Found in semantic cache! (no API call needed)\n")
-		data = cachedResponse
+		fmt.Println("✓ Found in semantic cache! (no API call needed)")
+		if cachedResponse.Similarity != nil {
+			fmt.Printf("  Similarity score: %.4f\n", *cachedResponse.Similarity)
+		}
+		fmt.Println()
+		data = cachedResponse.Response
+		similarity = cachedResponse.Similarity
 		fromCache = true
 	} else {
 		fmt.Println("✗ Not in cache, calling AISHE API...")
 		fmt.Println("Waiting for response...\n")
 
-		// AISHE server URL (running in Docker on port 8000)
-		url := "http://localhost:8000/api/v1/ask"
+		// Get AISHE server URL from environment variable (default: http://localhost:8000)
+		aisheURL := os.Getenv("AISHE_URL")
+		if aisheURL == "" {
+			aisheURL = "http://localhost:8000"
+		}
+		url := aisheURL + "/api/v1/ask"
 
 		// Prepare request payload
 		payload := Request{Question: question}
@@ -255,14 +240,24 @@ func main() {
 		}
 	}
 
-	// Print processing time
+	// Print processing time or cache info
 	fmt.Println()
 	fmt.Println(strings.Repeat("=", 70))
 	if fromCache {
 		fmt.Println("Source: Semantic Cache (LangCache)")
+		if similarity != nil {
+			fmt.Printf("Similarity score: %.4f\n", *similarity)
+		}
 	} else {
 		fmt.Printf("Processing time: %.2f seconds\n", data.ProcessingTime)
 	}
 	fmt.Println(strings.Repeat("=", 70))
+
+	// Print total execution time
+	executionTime := time.Since(startTime).Seconds()
+	fmt.Println()
+	fmt.Println(strings.Repeat("-", 70))
+	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
+	fmt.Println(strings.Repeat("-", 70))
 }
 
