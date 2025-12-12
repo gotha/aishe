@@ -1,3 +1,7 @@
+interface BaseResponse {
+    statusCode?: number;
+}
+
 /**
  * Request model for asking a question
  */
@@ -23,7 +27,7 @@ export interface Source {
 /**
  * Response model for an answer
  */
-export interface AnswerResponse {
+export interface AnswerResponse extends BaseResponse {
     /** Generated answer to the given question */
     answer: string;
 
@@ -37,7 +41,7 @@ export interface AnswerResponse {
 /**
  * Response model for health check
  */
-export interface HealthResponse {
+export interface HealthResponse extends BaseResponse {
     /** Server status */
     status: string;
 
