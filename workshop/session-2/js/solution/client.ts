@@ -125,7 +125,7 @@ export class AIsheHTTPClient {
         const endpoint = `${this.baseUrl}/health`;
         const response = await aisheAPIRequest("GET", endpoint, this.timeout);
         const healthResponse = response as HealthResponse;
-        if (healthResponse.status !== "healthy") {
+        if (healthResponse.statusCode !== 200) {
             throw new APIClientError("Health check failed");
         }
         return healthResponse;

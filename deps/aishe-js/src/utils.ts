@@ -49,7 +49,10 @@ export async function aisheAPIRequest(
         if (!response.ok) {
             throw new ServerError(`${method} request failed! Status: ${response.status}`);
         }
-        return await response.json();
+        return {
+            ...(await response.json()),
+            statusCode: response.status,
+        };
     } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
             throw new ServerNotReachableError(`${method} request timed out after ${timeout}ms`);

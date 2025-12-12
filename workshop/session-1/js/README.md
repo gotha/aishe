@@ -19,8 +19,8 @@
 
 ## Prerequisites
 
-- [Node](https://nodejs.org/en) v25.2.1+
-- [npm](https://www.npmjs.com/) v11.6.2+
+- [Node](https://nodejs.org/en) v20.19.2+
+- [npm](https://www.npmjs.com/) v10.8.2+
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) (for AIshe server, Redis, Ollama)
 - Running AISHE stack on http://localhost:8000 or another port
 - Familiarity with JavaScript / TypeScript
@@ -37,6 +37,7 @@ JavaScript without performing any type checks or guards.
 ```bash
 cd workshop/session-1/js/
 npm install
+cp .env.example .env
 ```
 
 ## Run

@@ -6,9 +6,9 @@
     "types": "dist/workshop/session-1/js/starter/main.d.ts",
     "scripts": {
         "build": "tsc",
-        "start": "node dist/workshop/session-1/js/starter/main.js",
-        "session": "npm run build && node dist/workshop/session-1/js/starter/main.js",
-        "solution": "npm run build && node dist/workshop/session-1/js/solution/main.js"
+        "start": "node --env-file .env dist/workshop/session-1/js/starter/main.js",
+        "session": "npm run build && node --env-file .env dist/workshop/session-1/js/starter/main.js",
+        "solution": "npm run build && node --env-file .env dist/workshop/session-1/js/solution/main.js"
     },
     "keywords": [],
     "author": "",
