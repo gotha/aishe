@@ -82,7 +82,7 @@ we encourage exploration, asking questions, pair programming.
 │         │                                             │            │
 │         ▼                                             ▼            │
 │  ┌──────────────────────┐                      ┌────────────┐      │
-│  │  Wikipedia           │                      │   Ollama   │      │
+│  │  Wikipedia (DB)      │                      │   Ollama   │      │
 │  └──────────────────────┘                      └────────────┘      │
 │                                                                    │
 └────────────────────────────────────────────────────────────────────┘
@@ -97,19 +97,51 @@ we encourage exploration, asking questions, pair programming.
 
 ---
 
+### Stretch goal / homework - AISHE Modern architecture 
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│                         AISHE                                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                                                             │   │
+│  │  • POST /api/v1/ask  - Answer questions                     │   │
+│  └────────────────────────────┬────────────────────────────────┘   │
+│                               ▼                                    │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                   RAG Pipeline (rag_pipeline.py)            │   │
+│  │            1. send the prompt to Ollama with tools          │   │
+│  │            2. parse ollama response and call tools          │   │ 
+│  │            3. Generation loop                               │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│         │ (mcp)                                       │            │
+│         ▼                                             ▼            │
+│  ┌────────────────────────────┐                ┌────────────┐      │
+│  │  Wikipedia / Other sources │                │   Ollama   │      │
+│  └────────────────────────────┘                └────────────┘      │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+
 ## Session 1: Wrap up
 
 - did we manage to get an answer?
 - what we have learned ?
-- why MCP? (homework)
 
 ---
 
-## Caching vs Semantic caching
+## Problem 
 
-- classic cache hit or miss vs semantic cache hit or miss
-    - vector search - Redis Search vs Redis VectorSets
-- MeanCache paper - https://arxiv.org/abs/2403.02694
+- LLMs are slow 
+- LLMs are "expensive"
+
+---
+
+## Lets add some caching - Redis
+
+- In memory store 
+- Scalable 
+- Shared state
 
 ---
 
@@ -119,6 +151,28 @@ we encourage exploration, asking questions, pair programming.
 - ./workshop/session-2/README.md
 - get an account in Redis Cloud - redis.io
 - show me the code
+
+---
+
+## Cache hit vs semantic cache hit
+
+- classic cache hit or miss vs semantic cache hit or miss
+    - vector search - Redis Search vs Redis VectorSets
+- MeanCache paper - https://arxiv.org/abs/2403.02694
+    - langcache model
+- trade-offs - higher cache hit rate vs slower cache lookup
+
+---
+
+### Stretch goal / homework - implement semantic cache yourself
+
+- Redis as vector store and  
+    - `all-minilm:latest` via ollama
+    - or langcache model - https://huggingface.co/redis/langcache-embed-v2
+- vectorize prompt
+- search for similar prompts
+    - determine if we have a semantic cache hit
+- store vectorized prompt and response
 
 ---
 
