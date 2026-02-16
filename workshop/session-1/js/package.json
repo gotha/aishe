@@ -1,24 +1,10 @@
 {
-    "name": "aishe-client",
+    "name": "@aishe/session-1",
     "version": "1.0.0",
-    "description": "AIshe JavaScript/TypeScript client",
-    "main": "dist/workshop/session-1/js/starter/main.js",
-    "types": "dist/workshop/session-1/js/starter/main.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "start": "node --env-file .env dist/workshop/session-1/js/starter/main.js",
-        "session": "npm run build && node --env-file .env dist/workshop/session-1/js/starter/main.js",
-        "solution": "npm run build && node --env-file .env dist/workshop/session-1/js/solution/main.js"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "private": true,
     "type": "module",
-    "devDependencies": {
-        "@types/node": "^24.10.1",
-        "typescript": "^5.9.3"
-    },
-    "dependencies": {
-        "aishe-client": "file:../../../deps/aishe-js"
+    "scripts": {
+        "start": "node --env-file .env starter.js",
+        "solution": "node --env-file .env solution.js"
     }
 }
