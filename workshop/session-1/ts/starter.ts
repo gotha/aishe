@@ -7,8 +7,9 @@ const AISHE_API_URL = process.env["AISHE_API_URL"];
 const rl = createInterface({ input, output });
 let startTime: number = 0;
 
-try {
+async function main() {
   const answer = await rl.question("Please enter your question: ");
+
   startTime = performance.now();
 
   const question = answer.trim();
@@ -26,6 +27,10 @@ try {
   // * TODO: Fetch and parse Aishe response via HTTP GET request
   // *******************************
   throw new Error("Not Implemented!");
+}
+
+try {
+  await main();
 } catch (error) {
   console.error(error);
   process.exit(1);

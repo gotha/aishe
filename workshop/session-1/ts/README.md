@@ -1,11 +1,14 @@
 # Session 1: Basic CLI Client - TypeScript Setup
 
+## Your Task
+
+- [ ] Implement the TODO comments inside the `main()` function in [starter.ts](./starter.ts)
+
 ## Prerequisites
 
 Before starting, ensure you have:
 
-1. **AISHE Server Running**: The AISHE server must be accessible
-   - For local development: `http://localhost:8000`
+1. **AISHE Server Running**: The AISHE server must be accessible. See [session-1 README](../README.md) for server setup instructions.
 2. **Node.js 20+**: Required for this project
 3. **npm 10+**: Required for this project
 
@@ -58,22 +61,12 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-### 3. Verify Installation
-
-```bash
-# Check Node version
-node --version
-
-# List installed packages
-npm list
-```
-
 ## Running the CLI
 
 ### Starter Code
 
 ```bash
-npm run start
+npm start
 ```
 
 ### Reference Solution
@@ -82,25 +75,16 @@ npm run start
 npm run solution
 ```
 
-### Testing Against Different Servers
-
-**Local server:**
-
-```bash
-export AISHE_API_URL=http://localhost:8000
-npm run start
-```
-
 ## Troubleshooting
 
 ### node/npm command not found
 
 If `node` or `npm` is not found after installation:
 
-1. **Restart your shell** or source your shell configuration:
+1. **Restart your shell** by spawning a new shell process:
 
    ```bash
-   source ~/.bashrc  # or ~/.zshrc
+   exec $SHELL
    ```
 
 2. **Check PATH**: Ensure Node.js is in your PATH:
@@ -117,3 +101,23 @@ Try removing node_modules and starting fresh:
 rm -rf node_modules
 npm install
 ```
+
+### Local AISHE server doesn't start
+
+If your local server can't start on port 8000:
+
+1. **Try a different port** and update the environment variable:
+
+   Update the `AISHE_API_URL` in the `.env` file to the new port, then run:
+
+   ```bash
+   npm start
+   ```
+
+2. **Use the hosted AISHE server** (if available):
+
+   Update the `AISHE_API_URL` in the `.env` file to the hosted server URL, then run:
+
+   ```bash
+   npm start
+   ```

@@ -7,8 +7,9 @@ const AISHE_API_URL = process.env["AISHE_API_URL"];
 const rl = createInterface({ input, output });
 let startTime: number = 0;
 
-try {
+async function main() {
   const answer = await rl.question("Please enter your question: ");
+
   startTime = performance.now();
 
   const question = answer.trim();
@@ -52,6 +53,10 @@ try {
   console.log("\n" + "=".repeat(70));
   console.log(`Processing time: ${data.processing_time.toFixed(2)} seconds`);
   console.log("=".repeat(70));
+}
+
+try {
+  await main();
 } catch (error) {
   console.error(error);
   process.exit(1);

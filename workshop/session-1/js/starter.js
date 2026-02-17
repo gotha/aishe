@@ -7,7 +7,7 @@ const rl = createInterface({ input, output });
 
 let startTime = 0;
 
-try {
+async function main() {
   const answer = await rl.question("Please enter your question: ");
 
   startTime = performance.now();
@@ -21,12 +21,16 @@ try {
 
   console.log(`Asking: ${question}`);
   console.log("Waiting for response...\n");
-  
+
   // *******************************
   // * WARNING: Solution missing
   // * TODO: Fetch and parse Aishe response via HTTP GET request
   // *******************************
   throw new Error("Not Implemented!");
+}
+
+try {
+  await main();
 } catch (error) {
   console.error(error);
   process.exit(1);
