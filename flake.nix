@@ -65,22 +65,6 @@
           ''}";
         };
 
-        # JS CLI: builds everything and then runs `npm start` in bin/ts
-        apps."aishe-js" = {
-          type = "app";
-          program = "${pkgs.writeShellScript "aishe-js" ''
-            set -euo pipefail
-            
-            # echo "=== Building aishe-client (client-js) ==="
-            cd deps/aishe-js/
-            ${nodejs}/bin/npm install
-            ${nodejs}/bin/npm run build
-
-            echo "=== Running AIshe JS CLI (npm start) ==="
-            exec ${nodejs}/bin/npm start "$@"
-          ''}";
-        };
-
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             # Python environment with native Nix packages
@@ -129,7 +113,6 @@
             echo "Available commands:"
             echo "  nix run .#server   - Start the API server"
             echo "  nix run .#aishe    - Run the Python CLI client"
-            echo "  nix run .#aishe-js - Build & run the JS CLI"
             echo ""
             echo "Workshop setup:"
             echo "  cd workshop/session-X/python && uv sync"
