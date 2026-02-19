@@ -13,6 +13,7 @@ const { stdin: input, stdout: output } = process;
 const getFromCache = async (langCache: LangCache, question: string) => {
   const { data } = await langCache.search({
     prompt: question,
+    similarityThreshold: 0.8,
   });
 
   return data;
