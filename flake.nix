@@ -82,6 +82,10 @@
             kubernetes-helm
             nodejs
 
+            # Java development (for workshop Java sessions)
+            jdk17
+            maven
+
             # Development tools
             git
           ];
@@ -109,6 +113,8 @@
             echo "Ollama: $(ollama --version)"
             echo "Virtual environment: .venv"
             echo "Node: $(${nodejs}/bin/node --version)"
+            echo "Java: $(java -version 2>&1 | head -1)"
+            echo "Maven: $(mvn --version 2>&1 | head -1)"
             echo ""
             echo "Available commands:"
             echo "  nix run .#server   - Start the API server"
