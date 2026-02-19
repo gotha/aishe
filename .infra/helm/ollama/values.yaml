@@ -9,16 +9,15 @@ ollama:
       - all-minilm:latest
 
 # Expose Ollama via LoadBalancer for external access
-# Restricted to your current IP: 62.67.249.178
+# Restricted to your IP/s
 service:
   type: LoadBalancer
   annotations:
     cloud.google.com/load-balancer-type: "External"
-
-# Restrict LoadBalancer access to specific IP ranges
-loadBalancerSourceRanges:
-  - 62.67.249.178/32
-  - 212.5.142.189/32
+  # Restrict LoadBalancer access to specific IP ranges
+  loadBalancerSourceRanges:
+    - 62.67.249.178/32
+    - 212.5.142.189/32
 
 # Node selector required for GKE Autopilot GPU nodes
 # Specify the GPU accelerator type you want to use

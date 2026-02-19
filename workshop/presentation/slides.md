@@ -1,20 +1,20 @@
 ---
 author: Redis Team Sofia
 title: Redis AI Workshop
-date: 13 December 2025
+date: 19 Feb 2026
 ---
 
 ## What are we going to do today?
 
 - Session 1: Create a command line app that interacts with RAG system
 - Session 2: Optimize for speed (see how fast it feels)
-- Session 3: Implement semantic caching 
+- Session 3: Implement semantic caching
 
---- 
+---
 
 ## Rules
 
-- Have fun! 
+- Have fun!
 - Make friends
 - Build software
 
@@ -29,10 +29,10 @@ Say hi to the team!
 
 ---
 
-## Requirements 
+## Requirements
 
 - modern operating system (preferrably unix-like but WSL also works)
-- docker 
+- docker
 - dev tools (git, make, curl, etc)
 - dev env (nodejs, python, golang, etc) + editor
 
@@ -42,7 +42,7 @@ Say hi to the team!
 
 For each session:
 
-- 5 mins intro 
+- 5 mins intro
 - 45 mins coding session
 - 5 mins wrap up
 
@@ -63,7 +63,7 @@ we encourage exploration, asking questions, pair programming.
 
 ---
 
-### AISHE architecture 
+### AISHE architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
@@ -76,7 +76,7 @@ we encourage exploration, asking questions, pair programming.
 │  ┌─────────────────────────────────────────────────────────────┐   │
 │  │                   RAG Pipeline (rag_pipeline.py)            │   │
 │  │            1. Retrieve Wikipedia Articles                   │   │
-│  │            2. Context Preparation                           │   │ 
+│  │            2. Context Preparation                           │   │
 │  │            3. Generation Phase                              │   │
 │  └─────────────────────────────────────────────────────────────┘   │
 │         │                                             │            │
@@ -97,7 +97,7 @@ we encourage exploration, asking questions, pair programming.
 
 ---
 
-### Stretch goal / homework - AISHE Modern architecture 
+### Stretch goal / homework - AISHE Modern architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
@@ -110,7 +110,7 @@ we encourage exploration, asking questions, pair programming.
 │  ┌─────────────────────────────────────────────────────────────┐   │
 │  │                   RAG Pipeline (rag_pipeline.py)            │   │
 │  │            1. send the prompt to Ollama with tools          │   │
-│  │            2. parse ollama response and call tools          │   │ 
+│  │            2. parse ollama response and call tools          │   │
 │  │            3. Generation loop                               │   │
 │  └─────────────────────────────────────────────────────────────┘   │
 │         │ (mcp)                                       │            │
@@ -130,17 +130,17 @@ we encourage exploration, asking questions, pair programming.
 
 ---
 
-## Problem 
+## Problem
 
-- LLMs are slow 
+- LLMs are slow
 - LLMs are "expensive"
 
 ---
 
 ## Lets add some caching - Redis
 
-- In memory store 
-- Scalable 
+- In memory store
+- Scalable
 - Shared state
 
 ---
@@ -166,7 +166,7 @@ we encourage exploration, asking questions, pair programming.
 
 ### Stretch goal / homework - implement semantic cache yourself
 
-- Redis as vector store and  
+- Redis as vector store and
     - `all-minilm:latest` via ollama
     - or langcache model - https://huggingface.co/redis/langcache-embed-v2
 - vectorize prompt

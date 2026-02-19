@@ -4,7 +4,7 @@
 
 ```sh
 export PROJECT_ID=redislabs-redisvpc-dev-238506
-gcloud container clusters create-auto redis-ai-workshop-dec-2025 \
+gcloud container clusters create-auto redis-ai-workshop-feb-2026 \
     --location=europe-west1 \
     --project=$PROJECT_ID
 ```
@@ -55,6 +55,11 @@ ollama run llama3.2:3b "Why is the sky blue?"
 
 ### Restrict Access to Specific IP
 
+
+`loadBalancerSourceRanges` is already configured in ./helm/ollama/values.yaml
+Add your IP address to the list to allow access and update the chart:
+
+
 To restrict access to only your current IP address:
 
 ```sh
@@ -63,14 +68,8 @@ MY_IP=$(curl -s https://api.ipify.org)
 echo "Your IP: ${MY_IP}"
 
 # Patch the service to restrict access
-kubectl patch svc ollama -p "{\"spec\":{\"loadBalancerSourceRanges\":[\"${MY_IP}/32\"]}}"
-
-# Verify the restriction
-kubectl get svc ollama -o jsonpath='{.spec.loadBalancerSourceRanges}'
+helm upgrade ollama otwld/ollama -f ./helm/ollama/values.yaml
 ```
-
-**Note:** The Helm chart doesn't persist `loadBalancerSourceRanges`, so you'll need to reapply this patch after each `helm upgrade`.
-
 ## Install AISHE
 
 AISHE requires Ollama to be running in the cluster. Make sure you've installed Ollama first (see above).
@@ -143,7 +142,7 @@ helm uninstall aishe
 helm uninstall ollama
 
 # Delete the cluster (if needed)
-gcloud container clusters delete redis-ai-workshop-dec-2025 \
+gcloud container clusters delete redis-ai-workshop-feb-2026 \
     --location=europe-west1 \
     --project=$PROJECT_ID
 ```
