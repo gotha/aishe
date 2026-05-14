@@ -47,8 +47,7 @@ func getCacheKey(question string) string {
 }
 
 // getFromCache retrieves cached response for a question
-func getFromCache(client *redis.Client, question string) (*Response, error) {
-	ctx := context.Background()
+func getFromCache(ctx context.Context, client *redis.Client, question string) (*Response, error) {
 	cacheKey := getCacheKey(question)
 
 	cachedData, err := client.Get(ctx, cacheKey).Result()
@@ -65,8 +64,7 @@ func getFromCache(client *redis.Client, question string) (*Response, error) {
 }
 
 // saveToCache saves response to cache
-func saveToCache(client *redis.Client, question string, response *Response) error {
-	ctx := context.Background()
+func saveToCache(ctx context.Context, client *redis.Client, question string, response *Response) error {
 	cacheKey := getCacheKey(question)
 
 	jsonData, err := json.Marshal(response)
@@ -125,7 +123,7 @@ func main() {
 	var data *Response
 	var fromCache bool
 
-	cachedResponse, err := getFromCache(rdb, question)
+	cachedResponse, err := getFromCache(ctx, rdb, question)
 	if err == nil && cachedResponse != nil {
 		fmt.Println("✓ Found in cache! (no API call needed)\n")
 		data = cachedResponse
@@ -181,7 +179,7 @@ func main() {
 		}
 
 		// Save to cache for future use
-		if err := saveToCache(rdb, question, data); err != nil {
+		if err := saveToCache(ctx, rdb, question, data); err != nil {
 			fmt.Printf("Warning: Error saving to cache: %v\n", err)
 		} else {
 			fmt.Println("✓ Response saved to cache\n")
@@ -225,4 +223,3 @@ func main() {
 	fmt.Printf("Execution time: %.2f seconds\n", executionTime)
 	fmt.Println(strings.Repeat("=", 70))
 }
-

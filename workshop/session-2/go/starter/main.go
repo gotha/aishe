@@ -51,7 +51,7 @@ func getCacheKey(question string) string {
 // 2. Query Redis for the cached value
 // 3. Handle cache miss vs. other errors appropriately
 // 4. Parse and return the cached JSON response
-func getFromCache(client *redis.Client, question string) (*Response, error) {
+func getFromCache(ctx context.Context, client *redis.Client, question string) (*Response, error) {
 	panic("not implemented")
 }
 
@@ -62,7 +62,7 @@ func getFromCache(client *redis.Client, question string) (*Response, error) {
 // 2. Serialize the response to JSON
 // 3. Save to Redis with an appropriate expiration time
 // 4. Handle any errors from the operation
-func saveToCache(client *redis.Client, question string, response *Response) error {
+func saveToCache(ctx context.Context, client *redis.Client, question string, response *Response) error {
 	panic("not implemented")
 }
 
@@ -113,7 +113,7 @@ func main() {
 	var data *Response
 	var fromCache bool
 
-	cachedResponse, err := getFromCache(rdb, question)
+	cachedResponse, err := getFromCache(ctx, rdb, question)
 	if err != nil {
 		fmt.Printf("Warning: Error reading from cache: %v\n", err)
 	}
@@ -172,7 +172,7 @@ func main() {
 		}
 
 		// Save to cache for future use
-		if err := saveToCache(rdb, question, data); err != nil {
+		if err := saveToCache(ctx, rdb, question, data); err != nil {
 			fmt.Printf("Warning: Error saving to cache: %v\n", err)
 		} else {
 			fmt.Println("✓ Response saved to cache\n")
